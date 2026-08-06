@@ -1,0 +1,26 @@
+{
+  "name": "饮食打卡 · 碳蛋脂热量记录",
+  "short_name": "饮食打卡",
+  "description": "每日记录碳水、蛋白质、脂肪与热量，自动汇总并生成趋势分析",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f4ee",
+  "theme_color": "#14263f",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
