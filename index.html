@@ -61,7 +61,7 @@ body{
   box-shadow:10px 10px 22px var(--dark),-10px -10px 22px var(--light);
   padding:22px;
 }
-.inset,.search,.qty-input,.serving-input,.field input,.field select,.weight-input{
+.inset,.search,.qty-input,.serving-input,.field input,.field select,.weight-input,.weight-field input{
   background:var(--card);
   border:none;
   border-radius:14px;
@@ -70,7 +70,7 @@ body{
   outline:none;
   transition:box-shadow .18s;
 }
-.search:focus,.qty-input:focus,.serving-input:focus,.field input:focus,.field select:focus,.weight-input:focus{
+.search:focus,.qty-input:focus,.serving-input:focus,.field input:focus,.field select:focus,.weight-input:focus,.weight-field input:focus{
   box-shadow:inset 4px 4px 9px var(--dark),inset -4px -4px 9px var(--light),0 0 0 2px rgba(79,147,208,.25);
 }
 .btn{
@@ -175,7 +175,7 @@ tr.cat-head td{
 .metric-list{display:grid;gap:11px}
 .metric-row{padding:11px 13px;border-radius:16px;background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light)}
 .metric-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:13px}
-.metric-name{font-weight:700;display:flex;align-items:center;gap:7px}
+.metric-name{font-weight:700;display:flex;align-items:center;gap:7px;min-width:64px}
 .metric-name i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .metric-vals{color:var(--muted);font-size:12px}
 .metric-vals b{color:var(--text)}
@@ -262,10 +262,27 @@ tr.cat-head td{
 .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(24px);background:var(--text);color:#f4f7fb;padding:12px 22px;border-radius:16px;font-size:14px;box-shadow:0 10px 26px rgba(40,50,65,.35);opacity:0;transition:all .28s;z-index:100;pointer-events:none;max-width:86vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ---------- 简化悬浮缺口窗口 ---------- */
+.float-summary{
+  position:fixed;left:50%;bottom:14px;transform:translateX(-50%) translateY(24px);
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  max-width:92vw;padding:10px 16px;border-radius:18px;z-index:45;pointer-events:none;
+  background:rgba(20,38,63,.92);color:#fff;font-size:12px;font-weight:600;
+  box-shadow:0 10px 24px rgba(20,38,63,.35);backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .25s,transform .25s;
+}
+.float-summary.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.float-summary b{font-size:13px}
+.float-summary .fs-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:1px}
+@media (min-width:1001px){ .float-summary{display:none} }
+
 @media (max-width:1000px){
   .library-layout{grid-template-columns:1fr}
   .today-layout{display:flex;flex-direction:column}
-  .overview{order:-1;position:sticky;top:8px;z-index:30;padding:14px 16px;max-height:42vh;overflow:auto}
+  .today-layout{align-items:stretch}
+  .today-layout>*{width:100%;min-width:0}
+  .overview{order:-1;position:static;padding:16px 18px}
+  .meal-card{width:100%}
   .kcal-num{font-size:34px}
   .metric-row{padding:8px 11px}
   .metric-top{font-size:12px;margin-bottom:5px}
@@ -431,9 +448,6 @@ tr.cat-head td{
         </div>
       </div>
       <div class="weight-update">
-        <label for="weightInput">体重（kg）</label>
-        <input class="weight-input" id="weightInput" type="number" min="20" max="300" step="0.1" placeholder="60">
-        <button class="btn btn-primary" id="saveWeightBtn" type="button">更新本周体重</button>
         <span class="weight-info" id="weightInfo"></span>
       </div>
       <div class="legend">
@@ -443,7 +457,7 @@ tr.cat-head td{
       </div>
       <div class="chart-box" id="chartWrap"></div>
       <div class="chart-stats" id="chartStats"></div>
-      <p class="chart-note">左轴为热量（kcal），右轴为体重（kg）；体重请每周更新一次，历史记录会自动保留。</p>
+      <p class="chart-note">左轴为热量（kcal），右轴为体重（kg）；体重每周在「目标」设置中更新一次，趋势图自动读取历史记录。</p>
     </div>
   </section>
 </main>
@@ -515,6 +529,7 @@ tr.cat-head td{
   </div>
 </div>
 
+<div class="float-summary" id="floatSummary"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -706,6 +721,7 @@ function renderHeader(){
 function renderOverview(){
   const { total } = calcTotals();
   const t = getTargets();
+  renderFloatSummary();
   $('#ovKcal').textContent = fmtK(total.kcal);
   $('#ovKcalTarget').textContent = fmtK(t.kcal);
   const kgap = t.kcal - total.kcal;
@@ -730,6 +746,18 @@ function renderOverview(){
       <div class="bar"><div class="bar-fill ${r.cls}" style="width:${Math.min(100, intake / target * 100)}%"></div></div>
     </div>`;
   }).join('');
+}
+function renderFloatSummary(){
+  const el = $('#floatSummary');
+  if (!el) return;
+  const { total } = calcTotals();
+  const t = getTargets();
+  const kgap = t.kcal - total.kcal;
+  const gapTxt = kgap > 0 ? '还差 ' + fmtK(kgap) : (kgap < 0 ? '超出 ' + fmtK(-kgap) : '达标');
+  el.innerHTML = `<span><b>🔥 ${fmtK(total.kcal)}</b><span style="color:#ffd0dc">/${fmtK(t.kcal)} kcal</span> · ${gapTxt}</span>
+    <span><i class="fs-dot" style="background:var(--c)"></i>碳 ${fmtNum(total.c)}/${fmtNum(t.c)}g</span>
+    <span><i class="fs-dot" style="background:var(--p)"></i>蛋 ${fmtNum(total.p)}/${fmtNum(t.p)}g</span>
+    <span><i class="fs-dot" style="background:var(--f)"></i>脂 ${fmtNum(total.f)}/${fmtNum(t.f)}g</span>`;
 }
 
 /* ================= 渲染：今日食物表 ================= */
@@ -882,10 +910,10 @@ function restoreBuiltin(fid){
   renderOverview();
   toast('已恢复默认数据');
 }
-function setFoodServing(fid, grams){
+function updateFoodServingData(fid, grams){
   grams = Math.max(1, Math.round((parseFloat(grams) || 0) * 10) / 10);
   const f = foodMap().get(fid);
-  if (!f) return;
+  if (!f) return grams;
   if (f.builtin) {
     overrides[fid] = Object.assign({}, overrides[fid] || {}, { serving: grams });
   } else {
@@ -893,9 +921,28 @@ function setFoodServing(fid, grams){
     if (idx >= 0) { customFoods[idx].serving = grams; customFoods[idx].perServing = calcPerServing(customFoods[idx].per100, grams); }
   }
   saveAll();
-  renderMealTable();
+  return grams;
+}
+function setFoodServingLive(fid, grams){
+  updateFoodServingData(fid, grams);
+  const f = foodMap().get(fid);
+  if (!f) return;
+  const row = document.querySelector('tr[data-fid="' + fid + '"]');
+  if (row){
+    const c = row.querySelector('.col-c');
+    const p = row.querySelector('.col-p');
+    const ff = row.querySelector('.col-f');
+    if (c) c.textContent = fmtNum(f.perServing.c);
+    if (p) p.textContent = fmtNum(f.perServing.p);
+    if (ff) ff.textContent = fmtNum(f.perServing.f);
+  }
+  renderMealTotals();
+  renderOverview();
+}
+function finalizeServingEdit(fid){
   renderLibrary();
   renderOverview();
+  renderMealTotals();
 }
 function setCount(fid, displayVal){
   const f = foodMap().get(fid);
@@ -1042,8 +1089,9 @@ function renderChart(){
 function renderWeightInfo(){
   let bestKey = null, best = null;
   Object.keys(weights).forEach(k => { if (bestKey === null || k > bestKey){ bestKey = k; best = weights[k]; } });
-  $('#weightInput').value = settings.weight;
-  $('#weightInfo').textContent = bestKey ? '上次更新：' + fmtDateCN(bestKey) + ' · ' + fmtNum(best, 1) + ' kg' : '还没有体重记录，点“更新本周体重”开始记录';
+  $('#weightInfo').textContent = bestKey
+    ? '体重数据：上次更新 ' + fmtDateCN(bestKey) + ' · ' + fmtNum(best, 1) + ' kg（每周在「目标」中更新，趋势自动读取）'
+    : '体重数据：暂无记录，请在「目标」中设置当前体重';
 }
 
 /* ================= 视图切换 ================= */
@@ -1106,11 +1154,17 @@ $('#mealBody').addEventListener('click', e => {
 $('#mealBody').addEventListener('input', e => {
   const el = e.target;
   if (el.classList.contains('serving-input')){
-    setFoodServing(el.dataset.fid, el.value);
+    setFoodServingLive(el.dataset.fid, el.value);
     return;
   }
   if (el.classList.contains('qty-input')){
     setCount(el.dataset.fid, el.value || 0);
+  }
+});
+$('#mealBody').addEventListener('change', e => {
+  const el = e.target;
+  if (el.classList.contains('serving-input')){
+    finalizeServingEdit(el.dataset.fid);
   }
 });
 
@@ -1200,16 +1254,6 @@ $('#rangeSeg').addEventListener('click', e => {
   if (!btn) return;
   state.chartRange = btn.dataset.range;
   renderChart();
-});
-$('#saveWeightBtn').addEventListener('click', () => {
-  const v = parseFloat($('#weightInput').value);
-  if (!v || v < 20 || v > 300){ toast('请输入合理的体重（20–300 kg）'); return; }
-  settings.weight = v;
-  weights[currentDayKey] = v;
-  saveAll();
-  renderOverview();
-  renderChart();
-  toast('体重已更新为 ' + fmtNum(v, 1) + ' kg');
 });
 let resizeTimer;
 window.addEventListener('resize', () => {
@@ -1323,6 +1367,27 @@ setInterval(checkDayRollover, 30000);
 normalizeCustomFoods();
 normalizeRecords();
 renderAll();
+if (window.matchMedia('(max-width:1000px)').matches && 'IntersectionObserver' in window){
+  const mealCard = document.querySelector('.meal-card');
+  const overviewCard = document.querySelector('.overview');
+  if (mealCard && overviewCard){
+    let mealVisible = false;
+    let overviewVisible = false;
+    new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.target === mealCard) mealVisible = en.isIntersecting;
+        if (en.target === overviewCard) overviewVisible = en.isIntersecting;
+      });
+      const el = $('#floatSummary');
+      if (el) el.classList.toggle('show', mealVisible && !overviewVisible);
+    }, { threshold: 0.05 }).observe(mealCard);
+    new IntersectionObserver(entries => {
+      entries.forEach(en => { overviewVisible = en.isIntersecting; });
+      const el = $('#floatSummary');
+      if (el) el.classList.toggle('show', mealVisible && !overviewVisible);
+    }, { threshold: 0.05 }).observe(overviewCard);
+  }
+}
 if ('serviceWorker' in navigator){
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
