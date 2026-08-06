@@ -183,7 +183,8 @@ tr.cat-head td{
 .metric-vals .gap.over{color:var(--danger)}
 
 /* ---------- library ---------- */
-.library-layout{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:start}
+.library-layout{display:flex;flex-direction:column;gap:22px}
+.library-layout .card:last-child{order:-1}
 .lib-table th{text-align:center}
 .lib-table td{text-align:center}
 .lib-table td:first-child,.lib-table .fname{text-align:left}
@@ -262,22 +263,26 @@ tr.cat-head td{
 .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(24px);background:var(--text);color:#f4f7fb;padding:12px 22px;border-radius:16px;font-size:14px;box-shadow:0 10px 26px rgba(40,50,65,.35);opacity:0;transition:all .28s;z-index:100;pointer-events:none;max-width:86vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ---------- 简化悬浮缺口窗口 ---------- */
+/* ---------- 简化悬浮缺口窗口（新拟态 · 顶部） ---------- */
 .float-summary{
-  position:fixed;left:50%;bottom:14px;transform:translateX(-50%) translateY(24px);
+  position:fixed;left:50%;top:12px;transform:translateX(-50%) translateY(-18px);
   display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
-  max-width:92vw;padding:10px 16px;border-radius:18px;z-index:45;pointer-events:none;
-  background:rgba(20,38,63,.92);color:#fff;font-size:12px;font-weight:600;
-  box-shadow:0 10px 24px rgba(20,38,63,.35);backdrop-filter:blur(6px);
+  max-width:92vw;padding:10px 18px;border-radius:18px;z-index:45;pointer-events:none;
+  background:var(--card);color:var(--text);font-size:12px;font-weight:600;
+  box-shadow:8px 8px 16px var(--dark),-8px -8px 16px var(--light);
   opacity:0;transition:opacity .25s,transform .25s;
 }
 .float-summary.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.float-summary b{font-size:13px}
+.float-summary .fs-k{color:var(--k);font-size:14px}
+.float-summary .fs-gap{color:var(--accent2);font-weight:700}
+.float-summary .fs-gap.over{color:var(--danger)}
+.float-summary .fs-m{color:var(--muted)}
+.float-summary .fs-m b{color:var(--text)}
 .float-summary .fs-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:1px}
 @media (min-width:1001px){ .float-summary{display:none} }
 
 @media (max-width:1000px){
-  .library-layout{grid-template-columns:1fr}
+  .library-layout{gap:18px}
   .today-layout{display:flex;flex-direction:column}
   .today-layout{align-items:stretch}
   .today-layout>*{width:100%;min-width:0}
@@ -754,10 +759,10 @@ function renderFloatSummary(){
   const t = getTargets();
   const kgap = t.kcal - total.kcal;
   const gapTxt = kgap > 0 ? '还差 ' + fmtK(kgap) : (kgap < 0 ? '超出 ' + fmtK(-kgap) : '达标');
-  el.innerHTML = `<span><b>🔥 ${fmtK(total.kcal)}</b><span style="color:#ffd0dc">/${fmtK(t.kcal)} kcal</span> · ${gapTxt}</span>
-    <span><i class="fs-dot" style="background:var(--c)"></i>碳 ${fmtNum(total.c)}/${fmtNum(t.c)}g</span>
-    <span><i class="fs-dot" style="background:var(--p)"></i>蛋 ${fmtNum(total.p)}/${fmtNum(t.p)}g</span>
-    <span><i class="fs-dot" style="background:var(--f)"></i>脂 ${fmtNum(total.f)}/${fmtNum(t.f)}g</span>`;
+  el.innerHTML = `<span><b class="fs-k">🔥 ${fmtK(total.kcal)}</b><span class="fs-m">/${fmtK(t.kcal)} kcal</span> <span class="fs-gap${kgap < 0 ? ' over' : ''}">${gapTxt}</span></span>
+    <span class="fs-m"><i class="fs-dot" style="background:var(--c)"></i>碳 <b>${fmtNum(total.c)}</b>/${fmtNum(t.c)}g</span>
+    <span class="fs-m"><i class="fs-dot" style="background:var(--p)"></i>蛋 <b>${fmtNum(total.p)}</b>/${fmtNum(t.p)}g</span>
+    <span class="fs-m"><i class="fs-dot" style="background:var(--f)"></i>脂 <b>${fmtNum(total.f)}</b>/${fmtNum(t.f)}g</span>`;
 }
 
 /* ================= 渲染：今日食物表 ================= */
