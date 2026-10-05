@@ -217,29 +217,53 @@ tr.cat-head td{
 .kcal-preview b{color:var(--k);font-size:15px}
 .form-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
 
-/* ---------- chart ---------- */
-.chart-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.weight-update{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.weight-input{width:90px;padding:8px 10px;text-align:center;font-size:14px}
-.weight-info{font-size:12px;color:var(--muted)}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px;font-size:12px;color:var(--muted)}
-.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
-.legend i.dot{width:9px;height:9px;border-radius:50%}
-.chart-box{width:100%;min-height:300px}
-.chart-box svg{display:block;width:100%;height:auto}
-.grid{stroke:rgba(59,68,83,.13);stroke-width:1}
-.axis-txt{fill:var(--muted);font-size:11px}
-.target-line{stroke:var(--danger);stroke-width:1.5;stroke-dasharray:6 5;opacity:.8}
-.target-txt{fill:var(--danger);font-size:11px;font-weight:700}
-.dot{fill:#fff;stroke-width:3;cursor:pointer}
-.dot-k{stroke:var(--accent)}
-.dot-w{stroke:var(--accent2)}
-.chart-empty{display:grid;place-items:center;height:280px;color:var(--muted);font-size:14px}
-.chart-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
-.stat{flex:1;min-width:105px;text-align:center;padding:13px 8px;border-radius:16px;background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light)}
-.stat span{display:block;font-size:11.5px;color:var(--muted);margin-bottom:4px}
-.stat b{font-size:16px;color:var(--accent)}
-.chart-note{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
+/* ---------- 每日记录日历 ---------- */
+.cal-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.cal-nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cal-nav-btn{
+  width:38px;height:38px;border:none;border-radius:13px;cursor:pointer;background:var(--card);
+  color:var(--accent);font-size:18px;font-weight:800;line-height:1;
+  box-shadow:4px 4px 8px var(--dark),-4px -4px 8px var(--light);transition:all .12s;
+}
+.cal-nav-btn:active{box-shadow:inset 3px 3px 6px var(--dark),inset -3px -3px 6px var(--light)}
+.cal-nav-btn[disabled]{opacity:.35;cursor:default}
+.cal-title{font-size:17px;font-weight:800;min-width:126px;text-align:center}
+.cal-legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--muted);margin-bottom:14px;align-items:center}
+.cal-legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:var(--dark)}
+.cal-legend i.go{background:var(--accent2)}
+.cal-legend i.no{background:var(--danger)}
+.cal-legend b{color:var(--text)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:9px}
+.cal-wd{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:2px 0 4px}
+.cal-cell{
+  position:relative;border-radius:16px;background:var(--card);padding:9px 9px 8px;min-height:78px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
+}
+.cal-cell.blank{box-shadow:none;background:transparent;min-height:78px}
+.cal-cell.future{opacity:.42}
+.cal-cell.today{box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light),0 0 0 2px rgba(79,147,208,.45)}
+.cal-cell.go{background:linear-gradient(180deg,rgba(108,196,161,.13),rgba(108,196,161,0) 62%),var(--card)}
+.cal-cell.no{background:linear-gradient(180deg,rgba(231,127,127,.13),rgba(231,127,127,0) 62%),var(--card)}
+.cal-date{font-size:12.5px;font-weight:700;color:var(--muted)}
+.cal-cell.today .cal-date{color:var(--accent)}
+.cal-tone{position:absolute;top:9px;right:9px;width:11px;height:11px;border-radius:50%;background:var(--dark)}
+.cal-cell.go .cal-tone{background:var(--accent2);box-shadow:0 0 0 3px rgba(108,196,161,.2)}
+.cal-cell.no .cal-tone{background:var(--danger);box-shadow:0 0 0 3px rgba(231,127,127,.18)}
+.cal-kcal{font-size:15.5px;font-weight:800;color:var(--text);line-height:1.1}
+.cal-kcal small{font-size:10px;font-weight:600;color:var(--muted);margin-left:2px}
+.cal-cell.blank .cal-kcal,.cal-cell.future .cal-kcal{color:var(--muted)}
+.cal-hint{font-size:10.5px;font-weight:700;color:var(--muted);margin-top:2px;min-height:13px}
+.cal-cell.go .cal-hint{color:#3d9a78}
+.cal-cell.no .cal-hint{color:var(--danger)}
+.cal-summary{
+  margin-top:16px;padding:13px 16px;border-radius:16px;font-size:13.5px;color:var(--muted);
+  background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
+}
+.cal-summary b{color:var(--text);font-size:14.5px}
+.cal-summary .go{color:#3d9a78}
+.cal-summary .no{color:var(--danger)}
+.cal-note{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
 
 /* ---------- footer / modal / toast ---------- */
 .footer{max-width:1320px;margin:10px auto 40px;padding:18px 22px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:12.5px}
@@ -328,7 +352,17 @@ tr.cat-head td{
   .meal-total{font-size:12.5px}
   .footer{justify-content:center;text-align:center}
   .modal-actions button{flex:1}
-  .weight-update{justify-content:center}
+  .cal-grid{gap:6px}
+  .cal-cell{min-height:60px;padding:7px 6px 6px;border-radius:13px}
+  .cal-cell.blank{min-height:60px}
+  .cal-kcal{font-size:13px}
+  .cal-kcal small{font-size:9px}
+  .cal-wd{font-size:11px}
+  .cal-hint{font-size:9.5px}
+  .cal-tone{width:9px;height:9px;top:7px;right:7px}
+  .cal-legend{font-size:11.5px;gap:6px 12px}
+  .cal-title{font-size:15px;min-width:100px}
+  .cal-nav-btn{width:34px;height:34px}
 }
 </style>
 </head>
@@ -351,7 +385,7 @@ tr.cat-head td{
 <nav class="main-nav">
   <button class="active" data-tab="today" type="button">📝 今日记录</button>
   <button data-tab="library" type="button">🍎 食物库</button>
-  <button data-tab="trend" type="button">📈 趋势分析</button>
+  <button data-tab="trend" type="button">📅 每日记录</button>
 </nav>
 
 <main class="wrap">
@@ -454,28 +488,27 @@ tr.cat-head td{
     </div>
   </section>
 
-  <!-- ================= 趋势分析 ================= -->
+  <!-- ================= 每日记录（日历） ================= -->
   <section id="tab-trend" class="tab-panel">
     <div class="card">
-      <div class="card-head chart-head">
-        <div class="card-title" style="margin-bottom:0" id="chartTitle">📈 摄入热量与体重变化</div>
-        <div class="seg" id="rangeSeg">
-          <button class="active" data-range="week" type="button">周</button>
-          <button data-range="month" type="button">月</button>
-          <button data-range="year" type="button">年</button>
+      <div class="cal-head">
+        <div class="card-title" style="margin-bottom:0">📅 每日饮食记录</div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" id="calPrev" type="button" aria-label="上一个月">‹</button>
+          <div class="cal-title" id="calTitle"></div>
+          <button class="cal-nav-btn" id="calNext" type="button" aria-label="下一个月">›</button>
+          <button class="btn btn-sm" id="calTodayBtn" type="button">回到本月</button>
         </div>
       </div>
-      <div class="weight-update">
-        <span class="weight-info" id="weightInfo"></span>
+      <div class="cal-legend">
+        <span><i class="go"></i>绿灯：摄入在目标 ±200 kcal 内</span>
+        <span><i class="no"></i>红灯：低于或高出目标 200 kcal 以上</span>
+        <span><i></i>灰点：当天没有记录</span>
+        <span>当前标准 <b id="calTarget">0</b> kcal · <b id="calDayType">训练日</b></span>
       </div>
-      <div class="legend">
-        <span><i style="background:#5b9bd5"></i>实际摄入热量（kcal）</span>
-        <span><i style="background:#ef6f8e"></i>热量目标（kcal）</span>
-        <span><i class="dot" style="background:#6cc4a1"></i>体重（kg）</span>
-      </div>
-      <div class="chart-box" id="chartWrap"></div>
-      <div class="chart-stats" id="chartStats"></div>
-      <p class="chart-note">左轴为热量（kcal），右轴为体重（kg）；体重每周在「目标」设置中更新一次，趋势图自动读取历史记录。</p>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-summary" id="calSummary"></div>
+      <p class="cal-note">判定用的是「⚙️ 目标」里的热量目标；切换顶部「训练日 / 休息日」可以看到另一套标准的达标情况。</p>
     </div>
   </section>
 </main>
@@ -628,7 +661,7 @@ let settings = Object.assign({ dayType: 'train', weight: 60, fat: 60 }, loadJSON
 let overrides = loadJSON(K_OVERRIDES, {});
 let weights = loadJSON(K_WEIGHTS, {});
 
-const state = { tab: 'today', search: '', catFilter: '全部', chartRange: 'week', viewFoodId: null, editFoodId: null };
+const state = { tab: 'today', search: '', catFilter: '全部', calYear: null, calMonth: null, viewFoodId: null, editFoodId: null };
 let currentDayKey = dietDateKey();
 
 const $ = s => document.querySelector(s);
@@ -1027,137 +1060,80 @@ function setCount(fid, displayVal){
   renderOverview();
 }
 
-/* ================= 渲染：趋势图 ================= */
-function buildChartData(range){
-  const target = getTargets().kcal;
-  if (range === 'week'){
-    const labels = [], values = [], wvals = [];
-    for (let i = 6; i >= 0; i--){
-      const d = new Date(); d.setDate(d.getDate() - i);
-      const key = dateKeyOf(d);
-      labels.push(key.slice(5).replace('-', '/'));
-      values.push(caloriesForDate(key));
-      wvals.push(weightOnOrBefore(key));
-    }
-    return { labels, values, weights: wvals, target, title: '📈 最近 7 天 · 摄入热量与体重' };
-  }
-  if (range === 'month'){
+/* ================= 渲染：每日饮食记录（日历） ================= */
+const KCAL_TOLERANCE = 200;   // 目标 ±200 kcal 之内算达标（绿灯）
+function calMonth(){
+  if (state.calYear == null){
     const now = new Date();
-    const y = now.getFullYear(), m = now.getMonth();
-    const labels = [], values = [], wvals = [];
-    for (let day = 1; day <= now.getDate(); day++){
-      const key = y + '-' + pad2(m + 1) + '-' + pad2(day);
-      labels.push(day + '日');
-      values.push(caloriesForDate(key));
-      wvals.push(weightOnOrBefore(key));
-    }
-    return { labels, values, weights: wvals, target, title: '📈 本月每日 · 摄入热量与体重' };
+    state.calYear = now.getFullYear();
+    state.calMonth = now.getMonth();
   }
+  return { y: state.calYear, m: state.calMonth };
+}
+function shiftCalMonth(delta){
+  const c = calMonth();
+  let y = c.y, m = c.m + delta;
+  if (m < 0){ m = 11; y--; }
+  if (m > 11){ m = 0; y++; }
+  state.calYear = y; state.calMonth = m;
+  renderCalendar();
+}
+function resetCalMonth(){
   const now = new Date();
-  const y = now.getFullYear();
-  const labels = [], values = [], wvals = [];
-  for (let m = 0; m <= now.getMonth(); m++){
-    labels.push((m + 1) + '月');
-    const days = new Date(y, m + 1, 0).getDate();
-    let sum = 0, cnt = 0;
-    for (let d = 1; d <= days; d++){
-      const key = y + '-' + pad2(m + 1) + '-' + pad2(d);
-      const cal = caloriesForDate(key);
-      if (cal > 0){ sum += cal; cnt++; }
-    }
-    values.push(cnt ? Math.round(sum / cnt) : null);
-    const lastKey = (m === now.getMonth() ? y + '-' + pad2(m + 1) + '-' + pad2(now.getDate()) : y + '-' + pad2(m + 1) + '-' + pad2(days));
-    wvals.push(weightOnOrBefore(lastKey));
-  }
-  return { labels, values, weights: wvals, target, title: '📈 今年每月 · 摄入热量与体重' };
+  state.calYear = now.getFullYear();
+  state.calMonth = now.getMonth();
+  renderCalendar();
 }
-function renderChart(){
-  $$('#rangeSeg button').forEach(b => b.classList.toggle('active', b.dataset.range === state.chartRange));
-  const data = buildChartData(state.chartRange);
-  $('#chartTitle').textContent = data.title;
-  const wrap = $('#chartWrap');
-  const w = Math.max(320, wrap.clientWidth - 4);
-  const h = 320, padL = 54, padR = 58, padT = 24, padB = 44;
-  const plotW = w - padL - padR, plotH = h - padT - padB;
-  const kcalNums = data.values.filter(v => v != null);
-  if (!kcalNums.length){
-    wrap.innerHTML = '<div class="chart-empty">暂无热量记录，先去「今日记录」添加食物吧</div>';
-    $('#chartStats').innerHTML = '';
-    return;
-  }
-  const kcalMax = Math.max(100, Math.ceil(Math.max.apply(null, kcalNums.concat([data.target || 0])) * 1.12 / 100) * 100);
-  const wNums = data.weights.filter(v => v != null);
-  let wMin = Math.min.apply(null, wNums), wMax = Math.max.apply(null, wNums);
-  if (wMin === wMax){ wMin -= 2; wMax += 2; } else { const wPad = (wMax - wMin) * 0.2; wMin -= wPad; wMax += wPad; }
-  const xFor = i => padL + (data.labels.length === 1 ? plotW / 2 : i * plotW / (data.labels.length - 1));
-  const yK = v => padT + plotH - (v - 0) / (kcalMax - 0) * plotH;
-  const yW = v => padT + plotH - (v - wMin) / (wMax - wMin) * plotH;
+function renderCalendar(){
+  const { y, m } = calMonth();
+  const t = getTargets();
+  const targetKcal = t.kcal;
+  const todayKey = dietDateKey();
+  $('#calTitle').textContent = y + ' 年 ' + (m + 1) + ' 月';
+  $('#calTarget').textContent = fmtK(targetKcal);
+  $('#calDayType').textContent = t.label;
 
-  const kPts = [];
-  data.values.forEach((v, i) => { if (v != null) kPts.push({ i, x: xFor(i), y: yK(v), v }); });
-  const wPts = [];
-  data.weights.forEach((v, i) => { if (v != null) wPts.push({ i, x: xFor(i), y: yW(v), v }); });
+  const lead = (new Date(y, m, 1).getDay() + 6) % 7;      // 周一排在第一列
+  const days = new Date(y, m + 1, 0).getDate();
+  let html = ['一', '二', '三', '四', '五', '六', '日'].map(w => `<div class="cal-wd">${w}</div>`).join('');
+  for (let i = 0; i < lead; i++) html += '<div class="cal-cell blank"></div>';
 
-  let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${data.title}">
-    <defs><linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5b9bd5" stop-opacity="0.28"/>
-      <stop offset="100%" stop-color="#5b9bd5" stop-opacity="0.02"/>
-    </linearGradient></defs>`;
-  for (let g = 0; g <= 4; g++){
-    const val = kcalMax * g / 4;
-    const y = yK(val);
-    svg += `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" class="grid"/>`;
-    svg += `<text x="${padL - 9}" y="${y + 4}" text-anchor="end" class="axis-txt">${fmtK(val)}</text>`;
-    const wVal = wMin + (wMax - wMin) * g / 4;
-    svg += `<text x="${w - padR + 9}" y="${y + 4}" text-anchor="start" class="axis-txt">${fmtNum(wVal, 1)}</text>`;
-  }
-  if (data.target){
-    const yt = yK(data.target);
-    svg += `<line x1="${padL}" y1="${yt}" x2="${w - padR}" y2="${yt}" class="target-line"/>`;
-    svg += `<text x="${w - padR}" y="${yt - 7}" text-anchor="end" class="target-txt">目标 ${fmtK(data.target)}</text>`;
-  }
-  const step = Math.ceil(data.labels.length / 8);
-  data.labels.forEach((lb, i) => {
-    if (i % step === 0 || i === data.labels.length - 1){
-      svg += `<text x="${xFor(i)}" y="${h - 18}" text-anchor="middle" class="axis-txt">${lb}</text>`;
+  let logged = 0, green = 0, low = 0, high = 0, sum = 0;
+  for (let d = 1; d <= days; d++){
+    const key = y + '-' + pad2(m + 1) + '-' + pad2(d);
+    const rec = records[key];
+    const kcal = caloriesForDate(key);
+    const has = kcal > 0 || !!(rec && rec.entries && Object.keys(rec.entries).length);
+    const isToday = key === todayKey;
+    const isFuture = key > todayKey;
+    let tone = '', judge = '', gapTxt = '';
+    if (has){
+      logged++; sum += kcal;
+      const diff = kcal - targetKcal;
+      if (Math.abs(diff) <= KCAL_TOLERANCE){ tone = ' go'; judge = '达标'; green++; }
+      else if (diff < 0){ tone = ' no'; judge = '偏低'; low++; gapTxt = '差 ' + fmtK(-diff); }
+      else { tone = ' no'; judge = '偏高'; high++; gapTxt = '超 ' + fmtK(diff); }
     }
-  });
+    const cls = 'cal-cell' + tone + (isToday ? ' today' : '') + (!has && isFuture ? ' future' : '');
+    const tip = has
+      ? (m + 1) + '月' + d + '日：' + fmtK(kcal) + ' kcal（目标 ' + fmtK(targetKcal) + ' · ' + judge + (gapTxt ? ' ' + gapTxt : '') + '）'
+      : (m + 1) + '月' + d + '日：' + (isFuture ? '还没到' : '没有记录');
+    html += `<div class="${cls}" data-day="${key}" title="${tip}">
+      <div class="cal-date">${d}</div>
+      <div class="cal-tone"></div>
+      <div>
+        <div class="cal-kcal">${has ? fmtK(kcal) : '—'}${has ? '<small>kcal</small>' : ''}</div>
+        <div class="cal-hint">${has ? judge + (gapTxt ? ' ' + gapTxt : '') : ''}</div>
+      </div>
+    </div>`;
+  }
+  const tail = (7 - (lead + days) % 7) % 7;
+  for (let i = 0; i < tail; i++) html += '<div class="cal-cell blank"></div>';
+  $('#calGrid').innerHTML = html;
 
-  const kPath = kPts.map((p, k) => (k ? 'L' : 'M') + p.x + ',' + p.y).join('');
-  const kArea = 'M' + kPts[0].x + ',' + yK(0) + ' ' + kPath.replace(/^M/, 'L') + ' L' + kPts[kPts.length - 1].x + ',' + yK(0) + ' Z';
-  svg += `<path d="${kArea}" fill="url(#chartFill)"/>`;
-  svg += `<path d="${kPath}" fill="none" stroke="#5b9bd5" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
-  kPts.forEach(p => {
-    svg += `<circle cx="${p.x}" cy="${p.y}" r="4" class="dot dot-k"><title>${data.labels[p.i]}：${fmtK(p.v)} kcal</title></circle>`;
-  });
-
-  const wPath = wPts.map((p, k) => (k ? 'L' : 'M') + p.x + ',' + p.y).join('');
-  if (wPts.length > 1) svg += `<path d="${wPath}" fill="none" stroke="#6cc4a1" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="1 0"/>`;
-  wPts.forEach(p => {
-    svg += `<circle cx="${p.x}" cy="${p.y}" r="4.5" class="dot dot-w"><title>${data.labels[p.i]}：${fmtNum(p.v, 1)} kg</title></circle>`;
-  });
-  svg += '</svg>';
-  wrap.innerHTML = svg;
-
-  const avg = kcalNums.reduce((a, b) => a + b, 0) / kcalNums.length;
-  const max = Math.max.apply(null, kcalNums);
-  const min = Math.min.apply(null, kcalNums);
-  const within = data.values.filter(v => v != null && v <= data.target).length;
-  const lastW = wPts.length ? wPts[wPts.length - 1].v : settings.weight;
-  $('#chartStats').innerHTML = `
-    <div class="stat"><span>平均热量</span><b>${fmtK(avg)} kcal</b></div>
-    <div class="stat"><span>最高热量</span><b>${fmtK(max)} kcal</b></div>
-    <div class="stat"><span>最低热量</span><b>${fmtK(min)} kcal</b></div>
-    <div class="stat"><span>未超标天数</span><b>${within} 天</b></div>
-    <div class="stat"><span>最新体重</span><b>${fmtNum(lastW, 1)} kg</b></div>`;
-  renderWeightInfo();
-}
-function renderWeightInfo(){
-  let bestKey = null, best = null;
-  Object.keys(weights).forEach(k => { if (bestKey === null || k > bestKey){ bestKey = k; best = weights[k]; } });
-  $('#weightInfo').textContent = bestKey
-    ? '体重数据：上次更新 ' + fmtDateCN(bestKey) + ' · ' + fmtNum(best, 1) + ' kg（每周在「目标」中更新，趋势自动读取）'
-    : '体重数据：暂无记录，请在「目标」中设置当前体重';
+  $('#calSummary').innerHTML = logged
+    ? `本月已记录 <b>${logged}</b> 天 · 绿灯 <b class="go">${green}</b> 天 · 偏低 <b class="no">${low}</b> 天 · 偏高 <b class="no">${high}</b> 天 · 日均 <b>${fmtK(sum / logged)}</b> kcal`
+    : '本月还没有记录，去「📝 今日记录」添加食物吧';
 }
 
 /* ================= 视图切换 ================= */
@@ -1165,14 +1141,14 @@ function switchTab(tab){
   state.tab = tab;
   $$('.main-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $$('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
-  if (tab === 'trend') renderChart();
+  if (tab === 'trend') renderCalendar();
 }
 function renderAll(){
   renderHeader();
   renderOverview();
   renderMealTable();
   renderLibrary();
-  if (state.tab === 'trend') renderChart();
+  if (state.tab === 'trend') renderCalendar();
 }
 
 /* ================= 事件 ================= */
@@ -1185,7 +1161,7 @@ $('#dayTypeSeg').addEventListener('click', e => {
   saveAll();
   renderHeader();
   renderOverview();
-  if (state.tab === 'trend') renderChart();
+  if (state.tab === 'trend') renderCalendar();
 });
 
 function bindCatFilter(container){
@@ -1314,18 +1290,10 @@ $('#efRestoreBtn').addEventListener('click', () => { if (state.editFoodId) resto
 ['efC', 'efP', 'efF'].forEach(id => $('#' + id).addEventListener('input', updateEfKcal));
 $('#editFoodModal').addEventListener('click', e => { if (e.target.id === 'editFoodModal') closeEditFoodModal(); });
 
-/* 趋势 */
-$('#rangeSeg').addEventListener('click', e => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  state.chartRange = btn.dataset.range;
-  renderChart();
-});
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => { if (state.tab === 'trend') renderChart(); }, 200);
-});
+/* 每日记录日历：月份切换 */
+$('#calPrev').addEventListener('click', () => shiftCalMonth(-1));
+$('#calNext').addEventListener('click', () => shiftCalMonth(1));
+$('#calTodayBtn').addEventListener('click', resetCalMonth);
 
 /* 目标弹窗 */
 const MULT_FIELDS = { train: { c: 'multTrainC', p: 'multTrainP' }, rest: { c: 'multRestC', p: 'multRestP' } };
@@ -1408,7 +1376,7 @@ $('#saveTargetsBtn').addEventListener('click', () => {
   renderHeader();
   renderOverview();
   renderMealTotals();
-  if (state.tab === 'trend') renderChart();
+  if (state.tab === 'trend') renderCalendar();
   const t = getTargets();
   toast('已更新：' + t.label + ' 碳' + t.c + ' / 蛋' + t.p + ' / 脂' + t.f + ' g · ' + t.kcal + ' kcal');
 });
