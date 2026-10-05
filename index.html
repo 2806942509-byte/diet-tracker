@@ -198,13 +198,6 @@ tr.cat-head td{
 .srch-status.ok{color:#3d9a78}
 .srch-status.warn{color:#b07d1e}
 .srch-status.err{color:var(--danger)}
-.srch-result{margin-bottom:12px}
-.srch-hit{padding:13px 15px;border-radius:16px;background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light)}
-.srch-hit-name{font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.srch-hit-tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(108,196,161,.16);color:#3d9a78}
-.srch-hit-nums{font-size:12.5px;color:var(--muted);margin:7px 0 10px;line-height:1.7}
-.srch-hit-nums b{color:var(--text);font-size:13.5px}
-.srch-note{margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.65}
 .key-hint{font-size:11.5px;color:var(--muted);line-height:1.6}
 .key-hint.ok{color:#3d9a78}
 .key-hint.warn{color:#b07d1e}
@@ -230,11 +223,6 @@ tr.cat-head td{
 .cal-nav-btn:active{box-shadow:inset 3px 3px 6px var(--dark),inset -3px -3px 6px var(--light)}
 .cal-nav-btn[disabled]{opacity:.35;cursor:default}
 .cal-title{font-size:17px;font-weight:800;min-width:126px;text-align:center}
-.cal-legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--muted);margin-bottom:14px;align-items:center}
-.cal-legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:var(--dark)}
-.cal-legend i.go{background:var(--accent2)}
-.cal-legend i.no{background:var(--danger)}
-.cal-legend b{color:var(--text)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:9px}
 .cal-wd{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:2px 0 4px}
 .cal-cell{
@@ -258,18 +246,8 @@ tr.cat-head td{
 .cal-hint{font-size:10.5px;font-weight:700;color:var(--muted);margin-top:2px;min-height:13px}
 .cal-cell.go .cal-hint{color:#3d9a78}
 .cal-cell.no .cal-hint{color:var(--danger)}
-.cal-summary{
-  margin-top:16px;padding:13px 16px;border-radius:16px;font-size:13.5px;color:var(--muted);
-  background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
-}
-.cal-summary b{color:var(--text);font-size:14.5px}
-.cal-summary .go{color:#3d9a78}
-.cal-summary .no{color:var(--danger)}
-.cal-note{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
 
-/* ---------- footer / modal / toast ---------- */
-.footer{max-width:1320px;margin:10px auto 40px;padding:18px 22px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:12.5px}
-.footer-actions{display:flex;gap:9px;flex-wrap:wrap}
+/* ---------- modal / toast ---------- */
 .modal-overlay{position:fixed;inset:0;background:rgba(48,58,74,.35);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:60;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
 .modal-overlay.open{display:flex}
 .modal{width:min(680px,94vw);max-height:88vh;overflow:auto}
@@ -277,6 +255,9 @@ tr.cat-head td{
 .modal .modal-sub{font-size:12.5px;color:var(--muted);margin-bottom:14px}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
 .target-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.data-row{margin-top:16px;padding-top:14px;border-top:1px solid rgba(59,68,83,.08)}
+.data-row-title{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:9px}
+.data-row-actions{display:flex;gap:9px;flex-wrap:wrap}
 .target-block{padding:15px;border-radius:18px;background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light)}
 .target-block.current{box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light),0 0 0 2px rgba(79,147,208,.3)}
 .target-block-title{font-weight:800;font-size:14px;margin-bottom:10px;color:var(--accent)}
@@ -351,7 +332,6 @@ tr.cat-head td{
   .serving-input{width:58px;padding:9px 4px;font-size:14px}
   .step{width:36px;height:36px;font-size:19px}
   .meal-total{font-size:12.5px}
-  .footer{justify-content:center;text-align:center}
   .modal-actions button{flex:1}
   .cal-grid{gap:6px}
   .cal-cell{min-height:60px;padding:7px 6px 6px;border-radius:13px}
@@ -361,7 +341,6 @@ tr.cat-head td{
   .cal-wd{font-size:11px}
   .cal-hint{font-size:9.5px}
   .cal-tone{width:9px;height:9px;top:7px;right:7px}
-  .cal-legend{font-size:11.5px;gap:6px 12px}
   .cal-title{font-size:15px;min-width:100px}
   .cal-nav-btn{width:34px;height:34px}
 }
@@ -439,22 +418,19 @@ tr.cat-head td{
     <div class="library-layout">
       <!-- 联网查询每100g营养 -->
       <div class="card srch-card">
-        <div class="card-title">🔍 联网查营养 <span class="muted" style="font-size:12px;font-weight:400">（查「每100g 碳水/蛋白/脂肪」）</span></div>
+        <div class="card-title">🔍 联网查营养</div>
         <div class="srch-bar">
           <input class="search srch-input" id="aiQueryInput" placeholder="输入食物名称，如：红烧肉、无糖酸奶、麦当劳巨无霸">
           <button class="btn btn-primary" id="aiQueryBtn" type="button">AI 一键查询</button>
           <button class="btn btn-sm btn-ghost" id="aiSettingsBtn" type="button">⚙️ 设置</button>
         </div>
-        <div class="srch-status" id="aiStatus">输入食物名称点「AI 一键查询」，会自动把每100g 碳水/蛋白/脂肪填到下面的表单，你核对后点「添加到食物清单」。</div>
-        <div id="aiResult" class="srch-result hidden"></div>
-        <p class="srch-note">AI 给的是估算值（家常菜尤其要核对一下）。AI key 只保存在你本机浏览器，不会上传到任何服务器。</p>
+        <div class="srch-status hidden" id="aiStatus"></div>
       </div>
 
       <div class="card add-card">
-        <div class="card-title" id="addFormTitle">➕ 新增食物</div>
         <form id="addFoodForm" class="add-form">
           <label class="field full"><span>食物名称</span><input id="nfName" required placeholder="如：燕麦片"></label>
-          <label class="field"><span>分类</span><select id="nfCat">
+          <label class="field"><span>分类（AI 查到的会自动选好）</span><select id="nfCat">
             <option value="碳水类">碳水类</option>
             <option value="蛋白类">蛋白类</option>
             <option value="其他">其他</option>
@@ -485,28 +461,10 @@ tr.cat-head td{
           <button class="btn btn-sm" id="calTodayBtn" type="button">回到本月</button>
         </div>
       </div>
-      <div class="cal-legend">
-        <span><i class="go"></i>绿灯：摄入在目标 ±200 kcal 内</span>
-        <span><i class="no"></i>红灯：低于或高出目标 200 kcal 以上</span>
-        <span><i></i>灰点：当天没有记录</span>
-        <span>当前标准 <b id="calTarget">0</b> kcal · <b id="calDayType">训练日</b></span>
-      </div>
       <div class="cal-grid" id="calGrid"></div>
-      <div class="cal-summary" id="calSummary"></div>
-      <p class="cal-note">判定用的是「⚙️ 目标」里的热量目标；切换顶部「训练日 / 休息日」可以看到另一套标准的达标情况。</p>
     </div>
   </section>
 </main>
-
-<footer class="footer">
-  <span>数据仅保存在本机浏览器（localStorage），不会上传。</span>
-  <div class="footer-actions">
-    <button class="btn btn-sm" id="exportBtn" type="button">⬇️ 导出备份</button>
-    <button class="btn btn-sm" id="importBtn" type="button">⬆️ 导入备份</button>
-    <input type="file" id="importFile" accept="application/json" hidden>
-    <button class="btn btn-sm btn-danger-ghost" id="resetDataBtn" type="button">重置数据</button>
-  </div>
-</footer>
 
 <!-- 目标弹窗 -->
 <div class="modal-overlay" id="targetModal">
@@ -536,6 +494,15 @@ tr.cat-head td{
       </div>
     </div>
     <div class="target-grid" id="targetGrid"></div>
+    <div class="data-row">
+      <span class="data-row-title">数据（只存在本机浏览器，不会上传）</span>
+      <div class="data-row-actions">
+        <button class="btn btn-sm" id="exportBtn" type="button">⬇️ 导出备份</button>
+        <button class="btn btn-sm" id="importBtn" type="button">⬆️ 导入备份</button>
+        <input type="file" id="importFile" accept="application/json" hidden>
+        <button class="btn btn-sm btn-danger-ghost" id="resetDataBtn" type="button">重置数据</button>
+      </div>
+    </div>
     <div class="modal-actions">
       <button class="btn" id="cancelTargetsBtn" type="button">取消</button>
       <button class="btn btn-primary" id="saveTargetsBtn" type="button">保存</button>
@@ -1079,15 +1046,12 @@ function renderCalendar(){
   const targetKcal = t.kcal;
   const todayKey = dietDateKey();
   $('#calTitle').textContent = y + ' 年 ' + (m + 1) + ' 月';
-  $('#calTarget').textContent = fmtK(targetKcal);
-  $('#calDayType').textContent = t.label;
 
   const lead = (new Date(y, m, 1).getDay() + 6) % 7;      // 周一排在第一列
   const days = new Date(y, m + 1, 0).getDate();
   let html = ['一', '二', '三', '四', '五', '六', '日'].map(w => `<div class="cal-wd">${w}</div>`).join('');
   for (let i = 0; i < lead; i++) html += '<div class="cal-cell blank"></div>';
 
-  let logged = 0, green = 0, low = 0, high = 0, sum = 0;
   for (let d = 1; d <= days; d++){
     const key = y + '-' + pad2(m + 1) + '-' + pad2(d);
     const rec = records[key];
@@ -1097,11 +1061,10 @@ function renderCalendar(){
     const isFuture = key > todayKey;
     let tone = '', judge = '', gapTxt = '';
     if (has){
-      logged++; sum += kcal;
       const diff = kcal - targetKcal;
-      if (Math.abs(diff) <= KCAL_TOLERANCE){ tone = ' go'; judge = '达标'; green++; }
-      else if (diff < 0){ tone = ' no'; judge = '偏低'; low++; gapTxt = '差 ' + fmtK(-diff); }
-      else { tone = ' no'; judge = '偏高'; high++; gapTxt = '超 ' + fmtK(diff); }
+      if (Math.abs(diff) <= KCAL_TOLERANCE){ tone = ' go'; judge = '达标'; }
+      else if (diff < 0){ tone = ' no'; judge = '偏低'; gapTxt = '差 ' + fmtK(-diff); }
+      else { tone = ' no'; judge = '偏高'; gapTxt = '超 ' + fmtK(diff); }
     }
     const cls = 'cal-cell' + tone + (isToday ? ' today' : '') + (!has && isFuture ? ' future' : '');
     const tip = has
@@ -1119,10 +1082,6 @@ function renderCalendar(){
   const tail = (7 - (lead + days) % 7) % 7;
   for (let i = 0; i < tail; i++) html += '<div class="cal-cell blank"></div>';
   $('#calGrid').innerHTML = html;
-
-  $('#calSummary').innerHTML = logged
-    ? `本月已记录 <b>${logged}</b> 天 · 绿灯 <b class="go">${green}</b> 天 · 偏低 <b class="no">${low}</b> 天 · 偏高 <b class="no">${high}</b> 天 · 日均 <b>${fmtK(sum / logged)}</b> kcal`
-    : '本月还没有记录，去「📝 今日记录」添加食物吧';
 }
 
 /* ================= 视图切换 ================= */
@@ -1207,7 +1166,6 @@ function resetAddForm(){
   $('#nfServing').value = '100';
   updateKcalPreview();
   state.editFoodId = null;
-  $('#addFormTitle').textContent = '➕ 新增食物';
   $('#addFoodBtn').textContent = '添加到食物清单';
   $('#cancelEditBtn').classList.add('hidden');
 }
@@ -1298,13 +1256,20 @@ async function reachTest(url){
 }
 function setAiStatus(msg, kind){
   const el = $('#aiStatus');
-  el.className = 'srch-status' + (kind ? ' ' + kind : '');
+  if (!msg || kind === 'ok'){        // 成功时不占地方，只有出错/需要提醒时才显示
+    el.classList.add('hidden');
+    el.textContent = '';
+    return;
+  }
+  el.classList.remove('hidden');
+  el.className = 'srch-status ' + (kind || '');
   el.textContent = msg;
 }
 function buildFoodPrompt(name){
-  return '请给出「' + name + '」每100克可食部分的营养估算。只输出一行 JSON，不要解释、不要代码块标记，格式严格如下：\n' +
-    '{"name":"食物名","per100":{"c":碳水克数,"p":蛋白质克数,"f":脂肪克数}}\n' +
-    '说明：数值用数字（可含小数）；按最常见的状态估算（如"红烧肉"按熟食、"大米"按生米请注明在 name 里）。';
+  return '请给出「' + name + '」每100克可食部分的营养估算，并判断它属于哪一类。只输出一行 JSON，不要解释、不要代码块标记，格式严格如下：\n' +
+    '{"name":"食物名","cat":"碳水类","per100":{"c":碳水克数,"p":蛋白质克数,"f":脂肪克数}}\n' +
+    'cat 只能填这三个之一：碳水类、蛋白类、其他（按主要营养来源判断：主食/水果/含糖饮料等算「碳水类」；肉蛋奶豆鱼等算「蛋白类」；蔬菜/油脂/坚果/零食等算「其他」）。\n' +
+    '说明：数值用数字（可含小数）；按最常见的状态估算（如"红烧肉"按熟食），熟食请把「（熟）」写在 name 里。';
 }
 function pickNumByKeys(box, keys){
   if (!box || typeof box !== 'object') return null;
@@ -1312,6 +1277,13 @@ function pickNumByKeys(box, keys){
     if (box[k] != null && isFinite(Number(box[k]))) return Number(box[k]);
   }
   return null;
+}
+function normCat(v){
+  const s = String(v == null ? '' : v);
+  if (/蛋白|肉|蛋|奶|鱼|虾|豆|protein/i.test(s)) return '蛋白类';
+  if (/碳水|主食|谷|果|糖|carb/i.test(s)) return '碳水类';
+  if (/其他|蔬菜|油|坚果|零食|other/i.test(s)) return '其他';
+  return '';
 }
 function pickNumByRegex(s, labels){
   for (const lb of labels){
@@ -1322,13 +1294,14 @@ function pickNumByRegex(s, labels){
 }
 function parseFoodAnswer(text, fallbackName){
   const s = String(text == null ? '' : text);
-  let name = fallbackName || '', c = null, p = null, f = null;
+  let name = fallbackName || '', c = null, p = null, f = null, cat = '';
   const a = s.indexOf('{'), b = s.lastIndexOf('}');
   if (a >= 0 && b > a){
     try {
       const j = JSON.parse(s.slice(a, b + 1));
       const box = j.per100 || j.per_100g || j.per100g || j.nutrition || j;
       name = String(j.name || j.food || j.food_name || fallbackName || '').trim();
+      cat = normCat(j.cat || j.category || j.type || j['分类']);
       c = pickNumByKeys(box, ['c', 'carbs', 'carb', 'carbohydrate', 'carbohydrates', '碳水', '碳水化合物']);
       p = pickNumByKeys(box, ['p', 'protein', 'proteins', 'protein_g', '蛋白质', '蛋白']);
       f = pickNumByKeys(box, ['f', 'fat', 'fats', 'fat_g', '脂肪']);
@@ -1338,29 +1311,25 @@ function parseFoodAnswer(text, fallbackName){
   if (p == null) p = pickNumByRegex(s, ['蛋白质', '蛋白', 'proteins?']);
   if (f == null) f = pickNumByRegex(s, ['脂肪', 'fats?']);
   if (c == null || p == null || f == null) return null;
-  return { name: name || fallbackName || '', c: c, p: p, f: f };
-}
-function showAiResult(d){
-  const kcal = d.c * 4 + d.p * 4 + d.f * 9;
-  const box = $('#aiResult');
-  box.classList.remove('hidden');
-  box.innerHTML = '<div class="srch-hit">' +
-    '<div class="srch-hit-name">' + esc(d.name || '(未命名)') + '<span class="srch-hit-tag">AI 估算</span></div>' +
-    '<div class="srch-hit-nums">每100g：碳水 <b>' + fmtNum(d.c) + '</b> g · 蛋白质 <b>' + fmtNum(d.p) + '</b> g · 脂肪 <b>' + fmtNum(d.f) + '</b> g · 热量 <b>' + fmtK(kcal) + '</b> kcal</div>' +
-    '<button class="btn btn-sm btn-primary" id="aiRefillBtn" type="button">↺ 重新填入表单</button>' +
-    '</div>';
-  $('#aiRefillBtn').addEventListener('click', function(){ fillAddForm(d); toast('已重新填入表单'); });
+  // 没给分类时，按三大营养素占比自动判断
+  if (!cat){
+    const kc = c * 4, kp = p * 4, kf = f * 9;
+    if (kc >= kp && kc >= kf) cat = '碳水类';
+    else if (kp >= kf) cat = '蛋白类';
+    else cat = '其他';
+  }
+  return { name: name || fallbackName || '', cat: cat, c: c, p: p, f: f };
 }
 function fillAddForm(d){
   if (!d) return false;
   $('#nfName').value = d.name || '';
+  if (d.cat) $('#nfCat').value = d.cat;
   $('#nfC').value = trimNum(d.c);
   $('#nfP').value = trimNum(d.p);
   $('#nfF').value = trimNum(d.f);
   const sv = parseFloat($('#nfServing').value);
   if (!sv || sv <= 0) $('#nfServing').value = '100';
   state.editFoodId = null;
-  $('#addFormTitle').textContent = '➕ 新增食物';
   $('#addFoodBtn').textContent = '添加到食物清单';
   $('#cancelEditBtn').classList.add('hidden');
   updateKcalPreview();
@@ -1374,9 +1343,8 @@ function useParsedAnswer(raw, fromQuery){
     setAiStatus('❌ AI 返回的内容里没找到「碳水 / 蛋白质 / 脂肪」三个数值，可以再点一次「AI 一键查询」重试。', 'err');
     return false;
   }
-  showAiResult(d);
   fillAddForm(d);
-  setAiStatus('✅ 已填入下方表单，请核对（可手动改），再点「添加到食物清单」。', 'ok');
+  setAiStatus('', 'ok');   // 成功就不显示提示，直接看下面的表单
   return true;
 }
 async function queryAiFood(){
