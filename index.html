@@ -177,19 +177,20 @@ tr.cat-head td{
 /* 表头与列内容对齐 */
 th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 .empty-td{text-align:center !important;color:var(--muted);padding:30px 10px}
-/* 手填营养素 */
+/* 手填营养素：强制单行，三个数字框平分剩余宽度 */
 .manual-add{
-  display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 12px;
-  padding:10px 12px;border-radius:16px;
+  display:flex;flex-wrap:nowrap;align-items:center;gap:6px;margin:0 0 12px;
+  padding:9px 12px;border-radius:16px;
   background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
 }
-.manual-add-title{font-size:13px;font-weight:700;color:var(--muted)}
-.manual-add label{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.manual-add-title{font-size:15px;line-height:1;flex:none}
+.manual-add label{display:flex;align-items:center;gap:4px;flex:1 1 0;min-width:0;font-size:12px;color:var(--muted)}
 .manual-add input{
-  width:62px;padding:8px 6px;text-align:center;font-size:14px;
+  flex:1 1 auto;width:100%;min-width:0;padding:8px 2px;text-align:center;font-size:14px;
   background:var(--card);border:none;border-radius:11px;color:var(--text);outline:none;
   box-shadow:inset 3px 3px 7px var(--dark),inset -3px -3px 7px var(--light);
 }
+.manual-add .btn{flex:none;white-space:nowrap;padding:9px 13px;font-size:13px}
 .manual-del{color:var(--danger) !important}
 /* 拍食物估算面板 */
 .dish-panel{
@@ -402,8 +403,10 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   .cal-wd{font-size:10.5px}
   .day-label{font-size:clamp(20px,5.4vw,23px)}
   .day-week{font-size:11.5px;padding:5px 10px}
-  .manual-add{gap:6px 8px;padding:9px 10px}
-  .manual-add input{width:54px}
+  .manual-add{gap:5px;padding:8px 10px}
+  .manual-add label{font-size:11.5px;gap:3px}
+  .manual-add input{font-size:13px;padding:7px 1px}
+  .manual-add .btn{padding:8px 11px;font-size:12.5px}
   /* 食物明细表：把输入框和按钮收窄，避免小屏要横向拖动 */
   th{padding:8px 5px}
   td{padding:7px 5px}
@@ -429,6 +432,11 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   .fname{max-width:96px}
   .day-label{font-size:20px}
   .day-week{font-size:11px;padding:5px 9px}
+  .manual-add{gap:4px;padding:8px 9px}
+  .manual-add-title{font-size:14px}
+  .manual-add label{font-size:11px;gap:2px}
+  .manual-add input{font-size:12.5px}
+  .manual-add .btn{padding:7px 9px;font-size:12px}
 }
 </style>
 </head>
@@ -471,7 +479,7 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
           </div>
         </div>
         <div class="manual-add">
-          <span class="manual-add-title">✍️ 手填</span>
+          <span class="manual-add-title">✍️</span>
           <label>碳水<input id="mC" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
           <label>蛋白<input id="mP" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
           <label>脂肪<input id="mF" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
