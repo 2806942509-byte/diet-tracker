@@ -60,16 +60,18 @@ button,input,select,textarea{touch-action:manipulation}
 }
 .header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
 .daybox{text-align:center;width:100%}
-/* 日期用宋体（衬线）显示，比默认黑体更秀气；全部是系统自带字体，不额外下载 */
+/* 日期 + 周几 同一行：日期用宋体（衬线）深墨色，周几用主题蓝、拉开字距 */
+.day-line{display:flex;align-items:baseline;justify-content:center;gap:9px;flex-wrap:wrap}
 .day-label{
   font-family:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",Georgia,"Times New Roman",serif;
-  font-size:clamp(26px,7.2vw,34px);
-  font-weight:600;letter-spacing:.08em;line-height:1.2;color:var(--text);
-  text-shadow:1px 1px 0 var(--light);
+  font-size:clamp(23px,6.2vw,30px);
+  font-weight:600;letter-spacing:.04em;line-height:1.15;
+  color:#26374b;
+  text-shadow:0 1px 0 rgba(255,255,255,.9);
 }
 .day-week{
-  margin-top:5px;font-size:12.5px;font-weight:600;letter-spacing:.34em;color:var(--muted);
-  font-family:"Songti SC","STSong","Noto Serif SC",Georgia,serif;
+  font-size:12.5px;font-weight:700;letter-spacing:.18em;color:var(--accent);
+  font-family:"Songti SC","STSong",Georgia,serif;
 }
 
 /* ---------- neumorphic primitives ---------- */
@@ -267,10 +269,10 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 .cal-nav-btn:active{box-shadow:inset 3px 3px 6px var(--dark),inset -3px -3px 6px var(--light)}
 .cal-nav-btn[disabled]{opacity:.35;cursor:default}
 .cal-title{font-size:17px;font-weight:800;min-width:126px;text-align:center}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:9px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;min-width:0}
 .cal-wd{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:2px 0 4px}
 .cal-cell{
-  position:relative;border-radius:16px;background:var(--card);padding:9px 9px 8px;min-height:78px;
+  position:relative;border-radius:16px;background:var(--card);padding:9px 9px 8px;min-height:78px;min-width:0;overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-between;
   box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
 }
@@ -284,10 +286,9 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 .cal-tone{position:absolute;top:9px;right:9px;width:11px;height:11px;border-radius:50%;background:var(--dark)}
 .cal-cell.go .cal-tone{background:var(--accent2);box-shadow:0 0 0 3px rgba(108,196,161,.2)}
 .cal-cell.no .cal-tone{background:var(--danger);box-shadow:0 0 0 3px rgba(231,127,127,.18)}
-.cal-kcal{font-size:15.5px;font-weight:800;color:var(--text);line-height:1.1}
-.cal-kcal small{font-size:10px;font-weight:600;color:var(--muted);margin-left:2px}
+.cal-kcal{font-size:15.5px;font-weight:800;color:var(--text);line-height:1.1;letter-spacing:-.02em}
 .cal-cell.blank .cal-kcal,.cal-cell.future .cal-kcal{color:var(--muted)}
-.cal-hint{font-size:10.5px;font-weight:700;color:var(--muted);margin-top:2px;min-height:13px}
+.cal-hint{font-size:10.5px;font-weight:700;color:var(--muted);margin-top:2px;min-height:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-cell.go .cal-hint{color:#3d9a78}
 .cal-cell.no .cal-hint{color:var(--danger)}
 
@@ -381,12 +382,51 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   .cal-cell{min-height:60px;padding:7px 6px 6px;border-radius:13px}
   .cal-cell.blank{min-height:60px}
   .cal-kcal{font-size:13px}
-  .cal-kcal small{font-size:9px}
-  .cal-wd{font-size:11px}
   .cal-hint{font-size:9.5px}
+  .cal-wd{font-size:11px}
   .cal-tone{width:9px;height:9px;top:7px;right:7px}
   .cal-title{font-size:15px;min-width:100px}
   .cal-nav-btn{width:34px;height:34px}
+}
+/* 更窄的手机（iPhone 常见 375~430px）：进一步压缩日历格子，避免把卡片撑破 */
+@media (max-width:430px){
+  .wrap{padding:0 12px 60px}
+  .card{padding:14px}
+  .cal-grid{gap:4px}
+  .cal-cell{min-height:54px;padding:6px 4px 5px;border-radius:11px}
+  .cal-cell.blank{min-height:54px}
+  .cal-kcal{font-size:12px}
+  .cal-hint{font-size:8.5px}
+  .cal-date{font-size:11px}
+  .cal-tone{width:8px;height:8px;top:6px;right:6px}
+  .cal-wd{font-size:10.5px}
+  .day-label{font-size:clamp(21px,6vw,26px)}
+  .manual-add{gap:6px 8px;padding:9px 10px}
+  .manual-add input{width:54px}
+  .manual-add input.manual-note{width:82px}
+  /* 食物明细表：把输入框和按钮收窄，避免小屏要横向拖动 */
+  th{padding:8px 5px}
+  td{padding:7px 5px}
+  .fname{max-width:120px}
+  .serving-input{width:58px}
+  .qty-input{width:52px}
+  .qty{gap:3px}
+  .step{width:26px;height:26px;border-radius:9px;font-size:15px}
+}
+/* 极窄（老的 320px 屏）：再压一档，保证 4 位数热量不被裁 */
+@media (max-width:370px){
+  .cal-grid{gap:3px}
+  .cal-cell{padding:5px 3px 4px;border-radius:10px}
+  .cal-kcal{font-size:11px}
+  .cal-hint{font-size:8px}
+  .cal-date{font-size:10.5px}
+  .cal-wd{font-size:10px}
+  .card{padding:12px}
+  .wrap{padding:0 10px 60px}
+  .serving-input{width:52px}
+  .qty-input{width:46px}
+  .step{width:24px;height:24px;font-size:14px}
+  .fname{max-width:96px}
 }
 </style>
 </head>
@@ -394,8 +434,10 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 
 <header class="app-header card">
   <div class="daybox">
-    <div class="day-label" id="dayLabel"></div>
-    <div class="day-week" id="dayWeek"></div>
+    <div class="day-line">
+      <span class="day-label" id="dayLabel"></span>
+      <span class="day-week" id="dayWeek"></span>
+    </div>
   </div>
   <div class="header-actions">
     <div class="seg" id="dayTypeSeg">
@@ -1213,19 +1255,19 @@ function renderCalendar(){
     if (has){
       const diff = kcal - targetKcal;
       if (Math.abs(diff) <= KCAL_TOLERANCE){ tone = ' go'; judge = '达标'; }
-      else if (diff < 0){ tone = ' no'; judge = '偏低'; gapTxt = '差 ' + fmtK(-diff); }
-      else { tone = ' no'; judge = '偏高'; gapTxt = '超 ' + fmtK(diff); }
+      else if (diff < 0){ tone = ' no'; judge = '低 ' + fmtK(-diff); }
+      else { tone = ' no'; judge = '高 ' + fmtK(diff); }
     }
     const cls = 'cal-cell' + tone + (isToday ? ' today' : '') + (!has && isFuture ? ' future' : '');
     const tip = has
-      ? (m + 1) + '月' + d + '日：' + fmtK(kcal) + ' kcal（目标 ' + fmtK(targetKcal) + ' · ' + judge + (gapTxt ? ' ' + gapTxt : '') + '）'
+      ? (m + 1) + '月' + d + '日：' + fmtK(kcal) + ' kcal（目标 ' + fmtK(targetKcal) + ' · ' + judge + '）'
       : (m + 1) + '月' + d + '日：' + (isFuture ? '还没到' : '没有记录');
     html += `<div class="${cls}" data-day="${key}" title="${tip}">
       <div class="cal-date">${d}</div>
       <div class="cal-tone"></div>
       <div>
-        <div class="cal-kcal">${has ? fmtK(kcal) : '—'}${has ? '<small>kcal</small>' : ''}</div>
-        <div class="cal-hint">${has ? judge + (gapTxt ? ' ' + gapTxt : '') : ''}</div>
+        <div class="cal-kcal">${has ? fmtK(kcal) : '—'}</div>
+        <div class="cal-hint">${has ? judge : ''}</div>
       </div>
     </div>`;
   }
