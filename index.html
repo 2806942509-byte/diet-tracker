@@ -164,6 +164,21 @@ tr.cat-head td{
 /* 表头与列内容对齐 */
 th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 .empty-td{text-align:center !important;color:var(--muted);padding:30px 10px}
+/* 手填营养素 */
+.manual-add{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 12px;
+  padding:10px 12px;border-radius:16px;
+  background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
+}
+.manual-add-title{font-size:13px;font-weight:700;color:var(--muted)}
+.manual-add label{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.manual-add input{
+  width:62px;padding:8px 6px;text-align:center;font-size:14px;
+  background:var(--card);border:none;border-radius:11px;color:var(--text);outline:none;
+  box-shadow:inset 3px 3px 7px var(--dark),inset -3px -3px 7px var(--light);
+}
+.manual-add input.manual-note{width:110px;text-align:left;font-size:13px}
+.manual-del{color:var(--danger) !important}
 
 /* ---------- overview ---------- */
 .overview{position:sticky;top:18px}
@@ -382,6 +397,14 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
             <button class="cat-filter-btn" data-cat="蛋白类" type="button">蛋白</button>
             <button class="cat-filter-btn" data-cat="其他" type="button">其他</button>
           </div>
+        </div>
+        <div class="manual-add">
+          <span class="manual-add-title">✍️ 手填</span>
+          <label>碳水<input id="mC" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
+          <label>蛋白<input id="mP" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
+          <label>脂肪<input id="mF" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
+          <input class="manual-note" id="mNote" type="text" placeholder="备注(可空)">
+          <button class="btn btn-sm btn-primary" id="mAddBtn" type="button">加入</button>
         </div>
         <div class="table-wrap">
           <table>
@@ -748,7 +771,7 @@ function foodMap(){
 }
 
 /* ================= 记录 ================= */
-function emptyRec(){ return { entries: {}, checked: false }; }
+function emptyRec(){ return { entries: {}, manual: [], checked: false }; }
 function normalizeRecords(){
   Object.keys(records).forEach(k => {
     const rec = records[k];
@@ -760,11 +783,14 @@ function normalizeRecords(){
       delete rec.meals;
     }
     if (!rec.entries) rec.entries = {};
+    if (!Array.isArray(rec.manual)) rec.manual = [];
   });
 }
 function getRec(){
   if (!records[currentDayKey]) records[currentDayKey] = emptyRec();
-  return records[currentDayKey];
+  const rec = records[currentDayKey];
+  if (!Array.isArray(rec.manual)) rec.manual = [];
+  return rec;
 }
 function calcTotals(key){
   const k = key || currentDayKey;
@@ -779,7 +805,46 @@ function calcTotals(key){
     total.f += f.perServing.f * count;
     total.kcal += f.perServing.kcal * count;
   });
+  (rec.manual || []).forEach(m => {                 // 手填的营养素直接累加
+    total.c += Number(m.c) || 0;
+    total.p += Number(m.p) || 0;
+    total.f += Number(m.f) || 0;
+    total.kcal += (Number(m.c) || 0) * 4 + (Number(m.p) || 0) * 4 + (Number(m.f) || 0) * 9;
+  });
   return { total };
+}
+/* 近 30 天里「有几天吃过」——用来把常吃的食物排前面 */
+function foodUsage(){
+  const since = Date.now() - 30 * 86400000;
+  const counts = {};
+  Object.keys(records).forEach(k => {
+    const t = Date.parse(k + 'T00:00:00');
+    if (!isFinite(t) || t < since) return;
+    const en = (records[k] || {}).entries || {};
+    Object.keys(en).forEach(fid => { if (en[fid] > 0) counts[fid] = (counts[fid] || 0) + 1; });
+  });
+  return counts;
+}
+function addManual(){
+  const c = parseFloat($('#mC').value) || 0;
+  const p = parseFloat($('#mP').value) || 0;
+  const f = parseFloat($('#mF').value) || 0;
+  if (c <= 0 && p <= 0 && f <= 0){ toast('至少填一个数值'); return; }
+  if (c < 0 || p < 0 || f < 0){ toast('数值不能为负'); return; }
+  const rec = getRec();
+  rec.manual.push({ id: 'm' + Date.now(), c: c, p: p, f: f, note: $('#mNote').value.trim() });
+  saveAll();
+  $('#mC').value = ''; $('#mP').value = ''; $('#mF').value = ''; $('#mNote').value = '';
+  renderMealTable();
+  renderOverview();
+  toast('已加入：碳水 ' + fmtNum(c) + ' / 蛋白 ' + fmtNum(p) + ' / 脂肪 ' + fmtNum(f) + ' g');
+}
+function removeManual(id){
+  const rec = getRec();
+  rec.manual = (rec.manual || []).filter(m => m.id !== id);
+  saveAll();
+  renderMealTable();
+  renderOverview();
 }
 function caloriesForDate(key){
   return calcTotals(key).total.kcal;
@@ -852,9 +917,28 @@ function renderMealTable(){
   const counts = rec.entries || {};
   let html = '';
   const span = window.matchMedia('(max-width:640px)').matches ? 4 : 6;
+
+  // 手填的营养素（不算份数，直接记克数）
+  const manual = rec.manual || [];
+  if (manual.length){
+    html += `<tr class="cat-head"><td colspan="${span}">✍️ 手填</td></tr>`;
+    manual.forEach(m => {
+      html += `<tr data-manual="${m.id}">
+        <td class="col-food fname">${m.note ? esc(m.note) : '手填营养素'}</td>
+        <td class="col-serving">—</td>
+        <td class="col-c">${fmtNum(m.c)}</td>
+        <td class="col-p">${fmtNum(m.p)}</td>
+        <td class="col-f">${fmtNum(m.f)}</td>
+        <td class="col-qty"><div class="qty"><button class="step manual-del" data-act="delmanual" type="button">✕</button></div></td>
+      </tr>`;
+    });
+  }
+
+  const usage = foodUsage();                 // 近 30 天吃得多的排前面
   CATS.forEach(cat => {
     const items = foods.filter(f => f.cat === cat);
     if (!items.length) return;
+    items.sort((a, b) => (usage[b.id] || 0) - (usage[a.id] || 0));
     html += `<tr class="cat-head"><td colspan="${span}">${cat}</td></tr>`;
     items.forEach(f => {
       const count = counts[f.id] || 0;
@@ -1009,7 +1093,7 @@ function setFoodServingLive(fid, grams){
 function finalizeServingEdit(fid){
   renderOverview();
 }
-function setCount(fid, displayVal){
+function setCount(fid, displayVal, fromTyping){
   const f = foodMap().get(fid);
   if (!f) return;
   let count = parseFloat(displayVal);
@@ -1020,8 +1104,11 @@ function setCount(fid, displayVal){
   else delete rec.entries[fid];
   rec.updatedAt = Date.now();
   saveAll();
-  const input = document.querySelector('.qty-input[data-fid="' + fid + '"]');
-  if (input) input.value = trimNum(count);
+  // 正在手动输入时不要回写输入框，否则输入 "1." 会被浏览器读成空串再被改写成 0
+  if (!fromTyping){
+    const input = document.querySelector('.qty-input[data-fid="' + fid + '"]');
+    if (input) input.value = trimNum(count);
+  }
   renderOverview();
 }
 
@@ -1135,6 +1222,8 @@ bindCatFilter($('#mealCatFilter'));
 $('#mealSearch').addEventListener('input', e => { state.search = e.target.value.trim(); renderMealTable(); });
 
 $('#mealBody').addEventListener('click', e => {
+  const delm = e.target.closest('[data-act="delmanual"]');
+  if (delm){ removeManual(delm.closest('tr').dataset.manual); return; }
   const view = e.target.closest('[data-action="view"]');
   if (view){ openFoodModal(view.closest('tr').dataset.fid); return; }
   const btn = e.target.closest('.step');
@@ -1143,7 +1232,10 @@ $('#mealBody').addEventListener('click', e => {
   const fid = row.dataset.fid;
   const input = row.querySelector('.qty-input');
   const cur = parseFloat(input.value) || 0;
-  const next = Math.max(0, cur + (btn.dataset.act === 'plus' ? 1 : -1));
+  // 处于半份（如 1.5）时按 0.5 步进，整数时按 1 —— 1.5 点「+」得到 2.0
+  const stepSize = (Math.abs(cur % 1) > 1e-9) ? 0.5 : 1;
+  const dir = btn.dataset.act === 'plus' ? 1 : -1;
+  const next = Math.max(0, Math.round((cur + dir * stepSize) * 1000) / 1000);
   setCount(fid, next);
 });
 
@@ -1154,15 +1246,28 @@ $('#mealBody').addEventListener('input', e => {
     return;
   }
   if (el.classList.contains('qty-input')){
-    setCount(el.dataset.fid, el.value || 0);
+    if (el.value === '') return;                 // 正在输入（"1." 会被浏览器读成空）→ 先不动
+    setCount(el.dataset.fid, el.value, true);
   }
 });
 $('#mealBody').addEventListener('change', e => {
   const el = e.target;
   if (el.classList.contains('serving-input')){
     finalizeServingEdit(el.dataset.fid);
+    return;
+  }
+  if (el.classList.contains('qty-input')){       // 输完后规范化显示（空 → 0）
+    const v = el.value === '' ? 0 : el.value;
+    setCount(el.dataset.fid, v, true);
+    el.value = trimNum(parseFloat(v) || 0);
   }
 });
+
+/* 手填营养素 */
+$('#mAddBtn').addEventListener('click', addManual);
+['mC', 'mP', 'mF', 'mNote'].forEach(id => $('#' + id).addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); addManual(); }
+}));
 
 /* 新增食物 */
 function updateKcalPreview(){
