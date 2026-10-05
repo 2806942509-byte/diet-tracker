@@ -191,6 +191,7 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   box-shadow:inset 3px 3px 7px var(--dark),inset -3px -3px 7px var(--light);
 }
 .manual-add .btn{flex:none;white-space:nowrap;padding:9px 13px;font-size:13px}
+.ver-line{margin-top:12px;text-align:center;font-size:10.5px;color:var(--muted);opacity:.75;letter-spacing:.05em}
 .manual-del{color:var(--danger) !important}
 /* 拍食物估算面板 */
 .dish-panel{
@@ -626,6 +627,7 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
       <button class="btn" id="cancelTargetsBtn" type="button">取消</button>
       <button class="btn btn-primary" id="saveTargetsBtn" type="button">保存</button>
     </div>
+    <div class="ver-line">版本 <span id="verText"></span></div>
   </div>
 </div>
 
@@ -738,6 +740,7 @@ const K_SETTINGS = 'diet_settings_v1';
 const K_OVERRIDES = 'diet_overrides_v1';
 const K_WEIGHTS = 'diet_weights_v1';
 const K_HIDDEN = 'diet_hidden_v1';
+const APP_VERSION = 'v20 · 10月5日';   // 每次更新都改这里，用来确认手机上是不是最新版
 const K_AI = 'diet_ai_v1';
 
 /* ================= 存储与状态 ================= */
@@ -2098,6 +2101,7 @@ normalizeSettings();
 normalizeCustomFoods();
 normalizeRecords();
 syncHiddenBtn();
+if ($('#verText')) $('#verText').textContent = APP_VERSION;
 renderAll();
 if (window.matchMedia('(max-width:1000px)').matches && 'IntersectionObserver' in window){
   const mealCard = document.querySelector('.meal-card');
@@ -2121,8 +2125,18 @@ if (window.matchMedia('(max-width:1000px)').matches && 'IntersectionObserver' in
   }
 }
 if ('serviceWorker' in navigator){
+  // GitHub Pages 会给 html/sw.js 加 10 分钟强缓存，所以：
+  // 1) updateViaCache:'none' → 每次都跳过缓存去检查 sw.js 有没有新版
+  // 2) 新 SW 接管页面时自动刷新一次，保证你看到的永远是最新版
+  let reloadedForUpdate = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloadedForUpdate) return;
+    reloadedForUpdate = true;
+    location.reload();
+  });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {});
+    if (navigator.serviceWorker.controller) navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
   });
 }
 })();
