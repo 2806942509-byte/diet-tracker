@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -15,7 +15,7 @@
 <link rel="icon" href="data:,">
 <title>饮食打卡 · 碳蛋脂热量记录</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#e7ecf2;
   --card:#e7ecf2;
@@ -32,7 +32,7 @@
   --k:#ef6f8e;
   --radius:26px;
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;touch-action:manipulation}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
   background:var(--bg);
@@ -41,6 +41,13 @@ body{
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
   -webkit-font-smoothing:antialiased;
+  touch-action:manipulation;      /* 关掉双击缩放，避免误触 */
+  overscroll-behavior-y:none;
+}
+button,input,select,textarea{touch-action:manipulation}
+/* 手机上输入框字号必须 ≥16px，否则 iOS 一点进去就自动放大整页 */
+@media (max-width:1000px){
+  input,select,textarea{font-size:16px !important}
 }
 .hidden{display:none !important}
 .muted{color:var(--muted);font-size:13px}
@@ -429,7 +436,6 @@ tr.cat-head td{
 
       <div class="card add-card">
         <form id="addFoodForm" class="add-form">
-          <label class="field full"><span>食物名称</span><input id="nfName" required placeholder="如：燕麦片"></label>
           <label class="field"><span>分类（AI 查到的会自动选好）</span><select id="nfCat">
             <option value="碳水类">碳水类</option>
             <option value="蛋白类">蛋白类</option>
@@ -1166,13 +1172,14 @@ function resetAddForm(){
   $('#nfServing').value = '100';
   updateKcalPreview();
   state.editFoodId = null;
+  pendingFoodName = '';
   $('#addFoodBtn').textContent = '添加到食物清单';
   $('#cancelEditBtn').classList.add('hidden');
 }
 $('#addFoodForm').addEventListener('submit', e => {
   e.preventDefault();
-  const name = $('#nfName').value.trim();
-  if (!name){ toast('请填写食物名称'); return; }
+  const name = (pendingFoodName || $('#aiQueryInput').value.trim()).trim();
+  if (!name){ toast('还没有食物名称 —— 先在「联网查营养」里输入名字点「AI 一键查询」'); return; }
   const cat = $('#nfCat').value;
   const serving = parseFloat($('#nfServing').value);
   if (!serving || serving <= 0){ toast('请填写每份规格（g）'); return; }
@@ -1181,20 +1188,12 @@ $('#addFoodForm').addEventListener('submit', e => {
   const f = parseFloat($('#nfF').value) || 0;
   if (c < 0 || p < 0 || f < 0){ toast('营养数值不能为负数'); return; }
   const per100 = { c, p, f, kcal: c * 4 + p * 4 + f * 9 };
-  if (state.editFoodId){
-    const idx = customFoods.findIndex(x => x.id === state.editFoodId);
-    if (idx >= 0){
-      customFoods[idx] = Object.assign({}, customFoods[idx], { name, cat, serving, per100, perServing: calcPerServing(per100, serving) });
-      toast('已更新「' + name + '」');
-    }
-  } else {
-    const id = 'c' + Date.now();
-    customFoods.push({ id, name, cat, serving, per100, perServing: calcPerServing(per100, serving) });
-    toast('已添加「' + name + '」到食物清单');
-  }
+  // 这个表单只负责「新增」；修改已有食物走「今日记录 → 点食物名 → 编辑营养数据」
+  customFoods.push({ id: 'c' + Date.now(), name, cat, serving, per100, perServing: calcPerServing(per100, serving) });
   saveAll();
   resetAddForm();
   renderMealTable();
+  toast('已添加「' + name + '」');
 });
 $('#cancelEditBtn').addEventListener('click', resetAddForm);
 ['nfC', 'nfP', 'nfF'].forEach(id => $('#' + id).addEventListener('input', updateKcalPreview));
@@ -1209,6 +1208,7 @@ const AI_PROVIDERS = {
   custom:      { label: '自定义',     url: '', model: '' }
 };
 let aiSettings = Object.assign({ provider: 'deepseek', url: '', model: '', key: '' }, loadJSON(K_AI, {}));
+let pendingFoodName = '';   // AI 给出的食物名（表单里不再放名称输入框）
 
 function cleanTok(s){
   // 去掉粘贴时可能混进来的空格、换行、零宽字符等，避免请求直接失败
@@ -1322,7 +1322,7 @@ function parseFoodAnswer(text, fallbackName){
 }
 function fillAddForm(d){
   if (!d) return false;
-  $('#nfName').value = d.name || '';
+  pendingFoodName = (d.name || $('#aiQueryInput').value || '').trim();
   if (d.cat) $('#nfCat').value = d.cat;
   $('#nfC').value = trimNum(d.c);
   $('#nfP').value = trimNum(d.p);
@@ -1330,7 +1330,8 @@ function fillAddForm(d){
   const sv = parseFloat($('#nfServing').value);
   if (!sv || sv <= 0) $('#nfServing').value = '100';
   state.editFoodId = null;
-  $('#addFoodBtn').textContent = '添加到食物清单';
+  const shortName = pendingFoodName.length > 12 ? pendingFoodName.slice(0, 12) + '…' : pendingFoodName;
+  $('#addFoodBtn').textContent = pendingFoodName ? '添加到食物清单（' + shortName + '）' : '添加到食物清单';
   $('#cancelEditBtn').classList.add('hidden');
   updateKcalPreview();
   const card = document.querySelector('.add-card');
