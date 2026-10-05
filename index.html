@@ -284,6 +284,7 @@ tr.cat-head td{
 .mult-input::-webkit-inner-spin-button,.mult-input::-webkit-outer-spin-button{-webkit-appearance:none}
 .mult-actions{margin-top:9px;display:flex;flex-wrap:wrap;gap:9px}
 .food-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.food-detail-grid.single{grid-template-columns:1fr}
 .food-detail-box{padding:13px 15px;border-radius:16px;background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light)}
 .food-detail-box .fd-title{font-size:11.5px;color:var(--muted);margin-bottom:6px}
 .food-detail-box .fd-val{font-size:13px;font-weight:700;color:var(--text);line-height:1.7}
@@ -384,7 +385,6 @@ tr.cat-head td{
         <div class="toolbar">
           <input class="search" id="mealSearch" placeholder="🔍 搜索食物…">
           <div class="cat-filter" id="mealCatFilter">
-            <button class="cat-filter-btn active" data-cat="全部" type="button">全部</button>
             <button class="cat-filter-btn" data-cat="碳水类" type="button">碳水</button>
             <button class="cat-filter-btn" data-cat="蛋白类" type="button">蛋白</button>
             <button class="cat-filter-btn" data-cat="其他" type="button">其他</button>
@@ -521,7 +521,7 @@ tr.cat-head td{
   <div class="modal card">
     <h3 id="foodModalTitle"></h3>
     <p class="modal-sub" id="foodModalSub"></p>
-    <div class="food-detail-grid" id="foodModalBody"></div>
+    <div class="food-detail-grid single" id="foodModalBody"></div>
     <div class="modal-actions">
       <button class="btn btn-primary" id="foodModalEdit" type="button">✏️ 编辑营养数据</button>
       <button class="btn btn-danger-ghost hidden" id="foodModalDelete" type="button">🗑 删除这个食物</button>
@@ -893,10 +893,7 @@ function openFoodModal(fid){
   $('#foodModalTitle').textContent = f.name + ' · 营养详情';
   $('#foodModalSub').textContent = '分类：' + f.cat + (f.builtin ? '（内置食物）' : '（自定义食物）');
   $('#foodModalBody').innerHTML = `
-    <div class="food-detail-box"><div class="fd-title">每份规格</div><div class="fd-val">${fmtNum(f.serving, 0)} g</div></div>
-    <div class="food-detail-box"><div class="fd-title">每100g</div><div class="fd-val">碳水 ${fmtNum(f.per100.c)}g<br>蛋白质 ${fmtNum(f.per100.p)}g<br>脂肪 ${fmtNum(f.per100.f)}g<br>热量 ${fmtK(f.per100.kcal)} kcal</div></div>
-    <div class="food-detail-box"><div class="fd-title">每份营养（${fmtNum(f.serving, 0)}g）</div><div class="fd-val">碳水 ${fmtNum(f.perServing.c)}g<br>蛋白质 ${fmtNum(f.perServing.p)}g<br>脂肪 ${fmtNum(f.perServing.f)}g<br>热量 ${fmtK(f.perServing.kcal)} kcal</div></div>
-    <div class="food-detail-box"><div class="fd-title">说明</div><div class="fd-val">在今日记录表中可直接修改“一份克数”，改完所有记录同步更新。</div></div>`;
+    <div class="food-detail-box"><div class="fd-title">每100g 营养成分</div><div class="fd-val">碳水 ${fmtNum(f.per100.c)}g<br>蛋白质 ${fmtNum(f.per100.p)}g<br>脂肪 ${fmtNum(f.per100.f)}g<br>热量 ${fmtK(f.per100.kcal)} kcal</div></div>`;
   $('#foodModalDelete').classList.toggle('hidden', !!f.builtin);   // 内置食物不能删
   $('#foodModal').classList.add('open');
 }
@@ -1121,7 +1118,8 @@ function bindCatFilter(container){
   container.addEventListener('click', e => {
     const btn = e.target.closest('.cat-filter-btn');
     if (!btn) return;
-    state.catFilter = btn.dataset.cat;
+    // 再点一次已选中的分类 = 取消筛选，回到「显示全部」
+    state.catFilter = (state.catFilter === btn.dataset.cat) ? '全部' : btn.dataset.cat;
     $$('.cat-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === state.catFilter));
     renderMealTable();
   });
