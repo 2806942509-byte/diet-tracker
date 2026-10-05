@@ -186,9 +186,6 @@ tr.cat-head td{
 
 /* ---------- library ---------- */
 .library-layout{display:flex;flex-direction:column;gap:22px}
-.library-layout .srch-card{order:1}
-.library-layout .add-card{order:2}
-.library-layout .lib-list-card{order:3}
 
 /* ---------- 联网查营养 ---------- */
 .srch-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
@@ -207,34 +204,10 @@ tr.cat-head td{
 .srch-hit-tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(108,196,161,.16);color:#3d9a78}
 .srch-hit-nums{font-size:12.5px;color:var(--muted);margin:7px 0 10px;line-height:1.7}
 .srch-hit-nums b{color:var(--text);font-size:13.5px}
-.srch-manual{border-top:1px solid rgba(59,68,83,.08);padding-top:12px}
-.srch-manual-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:12.5px;font-weight:700;color:var(--muted)}
-.srch-textarea{
-  width:100%;padding:11px 13px;border:none;border-radius:14px;font-size:13px;font-family:inherit;resize:vertical;
-  background:var(--card);color:var(--text);outline:none;
-  box-shadow:inset 4px 4px 9px var(--dark),inset -4px -4px 9px var(--light);
-}
-.srch-textarea:focus{box-shadow:inset 4px 4px 9px var(--dark),inset -4px -4px 9px var(--light),0 0 0 2px rgba(79,147,208,.25)}
 .srch-note{margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.65}
-.lib-table th{text-align:center}
-.lib-table td{text-align:center}
-.lib-table td:first-child,.lib-table .fname{text-align:left}
-.nums{color:var(--muted);font-size:12.5px}
-.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:11px;font-size:12px;font-weight:700;color:var(--muted);background:var(--card);box-shadow:4px 4px 8px var(--dark),-4px -4px 8px var(--light)}
-.chip-cat{padding:4px 9px;font-size:11.5px;border-radius:9px;box-shadow:none}
-.chip-carb{background:rgba(76,139,245,.13);color:#3b74d8}
-.chip-protein{background:rgba(244,123,76,.13);color:#d9683a}
-.chip-other{background:rgba(108,196,161,.15);color:#3d9a78}
-.custom-tag{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:8px;background:rgba(108,196,161,.16);color:#3d9a78;font-size:10.5px;font-weight:700;vertical-align:2px}
-.override-tag{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:8px;background:rgba(240,180,76,.18);color:#b07d1e;font-size:10.5px;font-weight:700;vertical-align:2px}
-.builtin-tag{color:var(--muted);font-size:11.5px}
-.op-btn{
-  border:none;cursor:pointer;background:var(--card);color:var(--accent);
-  padding:5px 10px;border-radius:9px;font-size:12px;font-weight:700;margin-left:5px;
-  box-shadow:3px 3px 7px var(--dark),-3px -3px 7px var(--light);
-}
-.op-btn.danger{color:var(--danger)}
-.lib-count{margin-top:12px;font-size:12.5px;color:var(--muted)}
+.key-hint{font-size:11.5px;color:var(--muted);line-height:1.6}
+.key-hint.ok{color:#3d9a78}
+.key-hint.warn{color:#b07d1e}
 
 /* ---------- add food form ---------- */
 .add-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -374,7 +347,6 @@ tr.cat-head td{
   th{font-size:11px}
   td{font-size:12.5px}
   .col-c,.col-p,.col-f{display:none}
-  .col-lib-per100,.col-lib-perserving,.col-lib-serving{display:none}
   .qty-input{width:64px;padding:9px 4px;font-size:15px}
   .serving-input{width:58px;padding:9px 4px;font-size:14px}
   .step{width:36px;height:36px;font-size:19px}
@@ -465,54 +437,17 @@ tr.cat-head td{
   <!-- ================= 食物库 ================= -->
   <section id="tab-library" class="tab-panel">
     <div class="library-layout">
-      <div class="card lib-list-card">
-        <div class="card-title">🍎 食物清单 <span class="muted" style="font-size:12px;font-weight:400">（点击食物可查看每100g营养）</span></div>
-        <div class="toolbar">
-          <input class="search" id="libSearch" placeholder="🔍 搜索食物…">
-          <div class="cat-filter" id="libCatFilter">
-            <button class="cat-filter-btn active" data-cat="全部" type="button">全部</button>
-            <button class="cat-filter-btn" data-cat="碳水类" type="button">碳水</button>
-            <button class="cat-filter-btn" data-cat="蛋白类" type="button">蛋白</button>
-            <button class="cat-filter-btn" data-cat="其他" type="button">其他</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table class="lib-table">
-            <thead>
-              <tr>
-                <th class="col-lib-cat">分类</th>
-                <th class="col-lib-name">食物</th>
-                <th class="col-lib-serving">每份克数</th>
-                <th class="col-lib-per100">每100g 碳/蛋/脂/kcal</th>
-                <th class="col-lib-perserving">每份 碳/蛋/脂/kcal</th>
-                <th class="col-lib-ops">操作</th>
-              </tr>
-            </thead>
-            <tbody id="libBody"></tbody>
-          </table>
-        </div>
-        <div class="lib-count" id="libCount"></div>
-      </div>
-
       <!-- 联网查询每100g营养 -->
       <div class="card srch-card">
         <div class="card-title">🔍 联网查营养 <span class="muted" style="font-size:12px;font-weight:400">（查「每100g 碳水/蛋白/脂肪」）</span></div>
         <div class="srch-bar">
           <input class="search srch-input" id="aiQueryInput" placeholder="输入食物名称，如：红烧肉、无糖酸奶、麦当劳巨无霸">
           <button class="btn btn-primary" id="aiQueryBtn" type="button">AI 一键查询</button>
-          <button class="btn" id="aiCopyPromptBtn" type="button">复制提示词（免 key）</button>
           <button class="btn btn-sm btn-ghost" id="aiSettingsBtn" type="button">⚙️ 设置</button>
         </div>
-        <div class="srch-status" id="aiStatus">没填 AI key 也能用：点「复制提示词」→ 粘到 DeepSeek 网页版问 → 把回答整段复制回来，粘到下面的框里点「解析并填入表单」。</div>
+        <div class="srch-status" id="aiStatus">输入食物名称点「AI 一键查询」，会自动把每100g 碳水/蛋白/脂肪填到下面的表单，你核对后点「添加到食物清单」。</div>
         <div id="aiResult" class="srch-result hidden"></div>
-        <div class="srch-manual">
-          <div class="srch-manual-head">
-            <span>把 AI 的回答粘贴到这里</span>
-            <button class="btn btn-sm" id="aiParseBtn" type="button">解析并填入表单</button>
-          </div>
-          <textarea class="srch-textarea" id="aiPasteBox" rows="3" placeholder='支持两种格式：{"name":"红烧肉","per100":{"c":5,"p":12,"f":18}}  或者  碳水5g 蛋白质12g 脂肪18g'></textarea>
-        </div>
-        <p class="srch-note">AI 给的是估算值，请核对后手动修正，再点下面表单的「添加到食物清单」。AI key（如果填了）只保存在你本机浏览器，不会上传到任何服务器。</p>
+        <p class="srch-note">AI 给的是估算值（家常菜尤其要核对一下）。AI key 只保存在你本机浏览器，不会上传到任何服务器。</p>
       </div>
 
       <div class="card add-card">
@@ -616,6 +551,7 @@ tr.cat-head td{
     <div class="food-detail-grid" id="foodModalBody"></div>
     <div class="modal-actions">
       <button class="btn btn-primary" id="foodModalEdit" type="button">✏️ 编辑营养数据</button>
+      <button class="btn btn-danger-ghost hidden" id="foodModalDelete" type="button">🗑 删除这个食物</button>
       <button class="btn" id="foodModalClose" type="button">关闭</button>
     </div>
   </div>
@@ -650,7 +586,7 @@ tr.cat-head td{
 <div class="modal-overlay" id="aiSettingsModal">
   <div class="modal card">
     <h3>AI 查询设置</h3>
-    <p class="modal-sub">填了 key 就能「AI 一键查询」自动填入；不填也能用「复制提示词」到免费网页版问。key 只保存在本机浏览器（localStorage），不会上传到任何服务器，也不会写进备份文件。</p>
+    <p class="modal-sub">填上 key 就能「AI 一键查询」自动填入营养数据。key 只保存在本机浏览器（localStorage），不会上传到任何服务器，也不会写进备份文件。</p>
     <form id="aiSettingsForm" class="add-form">
       <label class="field full"><span>服务商</span><select id="aiProvider">
         <option value="deepseek">DeepSeek（推荐，便宜）</option>
@@ -662,14 +598,13 @@ tr.cat-head td{
       </select></label>
       <label class="field full"><span>接口地址</span><input id="aiBaseUrl" placeholder="https://api.deepseek.com/chat/completions"></label>
       <label class="field"><span>模型名</span><input id="aiModel" placeholder="deepseek-chat"></label>
-      <label class="field"><span>API Key</span><input id="aiKey" type="password" placeholder="sk-...（留空则只用复制提示词）"></label>
+      <label class="field"><span>API Key</span><input id="aiKey" type="password" placeholder="sk-..."></label>
+      <div class="field full"><div class="key-hint" id="aiKeyHint">建议用 DeepSeek 控制台的「复制」按钮，粘贴时别漏字符。</div></div>
       <div class="form-actions">
         <button class="btn btn-primary" type="submit">保存</button>
-        <button class="btn" type="button" id="aiTestBtn">🧪 测试连接</button>
         <button class="btn btn-danger-ghost" type="button" id="aiClearKeyBtn">清除 key</button>
         <button class="btn" type="button" id="aiSettingsCancel">取消</button>
       </div>
-      <div class="field full"><div class="srch-status" id="aiTestOut">点「🧪 测试连接」可以检查手机能不能连上各家 AI 接口（一键查出是网络问题还是地址/key 问题）。</div></div>
     </form>
   </div>
 </div>
@@ -977,41 +912,6 @@ function renderMealTotals(){
   $('#mealTotals').innerHTML = `今日合计：碳水 <b>${fmtNum(total.c)}</b> g · 蛋白 <b>${fmtNum(total.p)}</b> g · 脂肪 <b>${fmtNum(total.f)}</b> g · 热量 <b>${fmtK(total.kcal)}</b> kcal`;
 }
 
-/* ================= 渲染：食物库 ================= */
-function renderLibrary(){
-  const kw = state.search.trim();
-  const foods = foodList().filter(f =>
-    (state.catFilter === '全部' || f.cat === state.catFilter) &&
-    (!kw || f.name.includes(kw))
-  );
-  let html = '';
-  const span = window.matchMedia('(max-width:640px)').matches ? 4 : 6;
-  CATS.forEach(cat => {
-    const items = foods.filter(f => f.cat === cat);
-    if (!items.length) return;
-    html += `<tr class="cat-head"><td colspan="${span}">${cat}</td></tr>`;
-    items.forEach(f => {
-      const tags = [];
-      if (!f.builtin) tags.push('<span class="custom-tag">自定义</span>');
-      if (f.builtin && f.overridden) tags.push('<span class="override-tag">已修改</span>');
-      const ops = [];
-      ops.push(`<button class="op-btn" data-op="edit" data-fid="${f.id}" type="button">编辑</button>`);
-      if (f.builtin && f.overridden) ops.push(`<button class="op-btn" data-op="restore" data-fid="${f.id}" type="button">恢复默认</button>`);
-      if (!f.builtin) ops.push(`<button class="op-btn danger" data-op="del" data-fid="${f.id}" type="button">删除</button>`);
-      html += `<tr data-fid="${f.id}" data-action="view" style="cursor:pointer">
-        <td class="col-lib-cat"><span class="chip chip-cat chip-${catClass(f.cat)}">${f.cat}</span></td>
-        <td class="col-lib-name fname">${esc(f.name)}${tags.join('')}</td>
-        <td class="col-lib-serving">${fmtNum(f.serving, 0)}g</td>
-        <td class="col-lib-per100 nums">${fmtNum(f.per100.c)} / ${fmtNum(f.per100.p)} / ${fmtNum(f.per100.f)} / ${fmtK(f.per100.kcal)}</td>
-        <td class="col-lib-perserving nums">${fmtNum(f.perServing.c)} / ${fmtNum(f.perServing.p)} / ${fmtNum(f.perServing.f)} / ${fmtK(f.perServing.kcal)}</td>
-        <td class="col-lib-ops" data-action="stop">${ops.join('')}</td>
-      </tr>`;
-    });
-  });
-  $('#libBody').innerHTML = html || '<tr><td colspan="6" class="empty-td">没有找到匹配的食物</td></tr>';
-  $('#libCount').textContent = '共 ' + foods.length + ' 种食物';
-}
-
 /* ================= 食物详情与编辑 ================= */
 function openFoodModal(fid){
   const f = foodMap().get(fid);
@@ -1023,10 +923,23 @@ function openFoodModal(fid){
     <div class="food-detail-box"><div class="fd-title">每份规格</div><div class="fd-val">${fmtNum(f.serving, 0)} g</div></div>
     <div class="food-detail-box"><div class="fd-title">每100g</div><div class="fd-val">碳水 ${fmtNum(f.per100.c)}g<br>蛋白质 ${fmtNum(f.per100.p)}g<br>脂肪 ${fmtNum(f.per100.f)}g<br>热量 ${fmtK(f.per100.kcal)} kcal</div></div>
     <div class="food-detail-box"><div class="fd-title">每份营养（${fmtNum(f.serving, 0)}g）</div><div class="fd-val">碳水 ${fmtNum(f.perServing.c)}g<br>蛋白质 ${fmtNum(f.perServing.p)}g<br>脂肪 ${fmtNum(f.perServing.f)}g<br>热量 ${fmtK(f.perServing.kcal)} kcal</div></div>
-    <div class="food-detail-box"><div class="fd-title">说明</div><div class="fd-val">在今日记录表中可直接修改“一份克数”，修改后食物库同步更新。</div></div>`;
+    <div class="food-detail-box"><div class="fd-title">说明</div><div class="fd-val">在今日记录表中可直接修改“一份克数”，改完所有记录同步更新。</div></div>`;
+  $('#foodModalDelete').classList.toggle('hidden', !!f.builtin);   // 内置食物不能删
   $('#foodModal').classList.add('open');
 }
 function closeFoodModal(){ $('#foodModal').classList.remove('open'); state.viewFoodId = null; }
+function deleteCustomFood(fid){
+  const f = foodMap().get(fid);
+  if (!f || f.builtin) return;
+  const used = Object.values(records).some(rec => (rec.entries || {})[fid] > 0);
+  if (used){ toast('「' + f.name + '」已在记录中使用，暂不能删除'); return; }
+  if (!confirm('确定删除「' + f.name + '」吗？')) return;
+  customFoods = customFoods.filter(x => x.id !== fid);
+  saveAll();
+  closeFoodModal();
+  renderMealTable();
+  toast('已删除「' + f.name + '」');
+}
 
 function openEditFoodModal(fid){
   const f = foodMap().get(fid);
@@ -1074,7 +987,6 @@ function saveEditedFood(){
   saveAll();
   closeEditFoodModal();
   renderMealTable();
-  renderLibrary();
   renderOverview();
   toast('已保存「' + name + '」');
 }
@@ -1084,7 +996,6 @@ function restoreBuiltin(fid){
   saveAll();
   closeEditFoodModal();
   renderMealTable();
-  renderLibrary();
   renderOverview();
   toast('已恢复默认数据');
 }
@@ -1118,7 +1029,6 @@ function setFoodServingLive(fid, grams){
   renderOverview();
 }
 function finalizeServingEdit(fid){
-  renderLibrary();
   renderOverview();
   renderMealTotals();
 }
@@ -1226,7 +1136,6 @@ function renderAll(){
   renderHeader();
   renderOverview();
   renderMealTable();
-  renderLibrary();
   if (state.tab === 'trend') renderCalendar();
 }
 
@@ -1250,14 +1159,11 @@ function bindCatFilter(container){
     state.catFilter = btn.dataset.cat;
     $$('.cat-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === state.catFilter));
     renderMealTable();
-    renderLibrary();
   });
 }
 bindCatFilter($('#mealCatFilter'));
-bindCatFilter($('#libCatFilter'));
 
 $('#mealSearch').addEventListener('input', e => { state.search = e.target.value.trim(); renderMealTable(); });
-$('#libSearch').addEventListener('input', e => { state.search = e.target.value.trim(); renderLibrary(); });
 
 $('#mealBody').addEventListener('click', e => {
   const view = e.target.closest('[data-action="view"]');
@@ -1287,29 +1193,6 @@ $('#mealBody').addEventListener('change', e => {
   if (el.classList.contains('serving-input')){
     finalizeServingEdit(el.dataset.fid);
   }
-});
-
-$('#libBody').addEventListener('click', e => {
-  const btn = e.target.closest('.op-btn');
-  if (btn){
-    e.stopPropagation();
-    const fid = btn.dataset.fid;
-    if (btn.dataset.op === 'edit') openEditFoodModal(fid);
-    else if (btn.dataset.op === 'restore') restoreBuiltin(fid);
-    else if (btn.dataset.op === 'del'){
-      const used = Object.values(records).some(rec => (rec.entries || {})[fid] > 0);
-      if (used){ toast('「' + (foodMap().get(fid) || {}).name + '」已在记录中使用，暂不能删除'); return; }
-      if (!confirm('确定删除该食物吗？')) return;
-      customFoods = customFoods.filter(x => x.id !== fid);
-      saveAll();
-      renderLibrary();
-      renderMealTable();
-      toast('已删除');
-    }
-    return;
-  }
-  const row = e.target.closest('tr[data-fid]');
-  if (row) openFoodModal(row.dataset.fid);
 });
 
 /* 新增食物 */
@@ -1353,13 +1236,12 @@ $('#addFoodForm').addEventListener('submit', e => {
   }
   saveAll();
   resetAddForm();
-  renderLibrary();
   renderMealTable();
 });
 $('#cancelEditBtn').addEventListener('click', resetAddForm);
 ['nfC', 'nfP', 'nfF'].forEach(id => $('#' + id).addEventListener('input', updateKcalPreview));
 
-/* ================= 联网查营养（AI 查询 / 复制提示词） ================= */
+/* ================= 联网查营养（AI 查询） ================= */
 const AI_PROVIDERS = {
   deepseek:    { label: 'DeepSeek',   url: 'https://api.deepseek.com/chat/completions',                            model: 'deepseek-chat' },
   zhipu:       { label: '智谱 GLM',   url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',                model: 'glm-4-flash' },
@@ -1370,23 +1252,39 @@ const AI_PROVIDERS = {
 };
 let aiSettings = Object.assign({ provider: 'deepseek', url: '', model: '', key: '' }, loadJSON(K_AI, {}));
 
+function cleanTok(s){
+  // 去掉粘贴时可能混进来的空格、换行、零宽字符等，避免请求直接失败
+  return String(s == null ? '' : s).replace(/[\s\u00A0\u200B-\u200D\uFEFF]/g, '');
+}
 function aiConf(){
   const p = AI_PROVIDERS[aiSettings.provider] || AI_PROVIDERS.deepseek;
-  let url = String(aiSettings.url || p.url || '').trim();
+  let url = cleanTok(aiSettings.url || p.url || '');
   if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;   // 手输漏了 https:// 也能用
   return {
     url: url,
     model: String(aiSettings.model || p.model || '').trim(),
-    key: String(aiSettings.key || '').trim()
+    key: cleanTok(aiSettings.key)
   };
 }
-const AI_HOSTS = [
-  { key: 'deepseek',    label: 'DeepSeek' },
-  { key: 'zhipu',       label: '智谱 GLM' },
-  { key: 'kimi',        label: 'Kimi' },
-  { key: 'siliconflow', label: '硅基流动' },
-  { key: 'dashscope',   label: '通义千问' }
-];
+function updateKeyHint(){
+  const el = $('#aiKeyHint');
+  if (!el) return;
+  const raw = $('#aiKey').value;
+  const k = cleanTok(raw);
+  if (!k){
+    el.className = 'key-hint';
+    el.textContent = '还没填 key —— 填上才能用「AI 一键查询」。';
+    return;
+  }
+  const okPrefix = /^sk-/.test(k);
+  const okLen = k.length >= 25;
+  const cleaned = (String(raw).trim().length !== k.length);
+  el.className = 'key-hint ' + ((okPrefix && okLen) ? 'ok' : 'warn');
+  el.textContent = '已识别 ' + k.length + ' 个字符' +
+    (okPrefix ? '（sk- 开头 ✓）' : '（⚠️ 不是 sk- 开头，请确认复制的是「API key」不是别的）') +
+    (cleaned ? ' · 已自动去掉粘贴带进来的空格/换行' : '') +
+    ((okPrefix && okLen) ? '，格式看起来正常' : ' · 长度偏短，很可能没复制全');
+}
 function hostName(url){ return String(url || '').replace(/^https?:\/\//i, '').split('/')[0]; }
 async function reachTest(url){
   const t0 = Date.now();
@@ -1398,45 +1296,6 @@ async function reachTest(url){
     return { ok: false, ms: Date.now() - t0, err: (e && (e.name || e.message)) || 'Error' };
   }
 }
-function withTimeout(promise, ms){
-  return Promise.race([promise, new Promise(resolve => setTimeout(() => resolve({ ok: false, ms: ms, err: '超时' }), ms))]);
-}
-async function runConnTest(){
-  const out = $('#aiTestOut');
-  out.className = 'srch-status';
-  const lines = [];
-  const cfg = aiConf();
-  out.textContent = '正在逐个测试（每个最多等 8 秒）…\n' + '受测设备：' + (navigator.userAgent.indexOf('iPhone') >= 0 || navigator.userAgent.indexOf('iPad') >= 0 ? 'iPhone/iPad' : '本机浏览器');
-  for (const h of AI_HOSTS){
-    const url = (AI_PROVIDERS[h.key] || {}).url;
-    const r = await withTimeout(reachTest(url), 8000);
-    lines.push((r.ok ? '✅ ' : '❌ ') + h.label + '  ' + hostName(url) + (r.ok ? '  可达 ' + r.ms + 'ms' : '  连不上（' + r.err + '）'));
-    out.textContent = '测试结果：\n' + lines.join('\n');
-  }
-  if (cfg.key && cfg.url){
-    lines.push('');
-    lines.push('再用你的 key 实测一次「' + (AI_PROVIDERS[aiSettings.provider] || {}).label + '」：');
-    out.textContent = '测试结果：\n' + lines.join('\n') + '\n请求中…';
-    try {
-      const res = await fetch(cfg.url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
-        body: JSON.stringify({ model: cfg.model, messages: [{ role: 'user', content: 'hi' }], max_tokens: 1 })
-      });
-      const t = await res.text();
-      lines.push(res.ok
-        ? '✅ 成功：HTTP ' + res.status + '（key 和地址都没问题）'
-        : '❌ HTTP ' + res.status + '：' + t.slice(0, 120).replace(/\s+/g, ' '));
-    } catch(e){
-      lines.push('❌ 请求发不出去：' + ((e && (e.name || e.message)) || 'Error'));
-    }
-  } else {
-    lines.push('');
-    lines.push('（还没填 key，所以只测了网络连通性；填上 key 再点一次可以完整测试）');
-  }
-  out.textContent = '测试结果：\n' + lines.join('\n');
-  out.className = 'srch-status ' + (lines.join('').indexOf('❌') >= 0 ? 'warn' : 'ok');
-}
 function setAiStatus(msg, kind){
   const el = $('#aiStatus');
   el.className = 'srch-status' + (kind ? ' ' + kind : '');
@@ -1446,20 +1305,6 @@ function buildFoodPrompt(name){
   return '请给出「' + name + '」每100克可食部分的营养估算。只输出一行 JSON，不要解释、不要代码块标记，格式严格如下：\n' +
     '{"name":"食物名","per100":{"c":碳水克数,"p":蛋白质克数,"f":脂肪克数}}\n' +
     '说明：数值用数字（可含小数）；按最常见的状态估算（如"红烧肉"按熟食、"大米"按生米请注明在 name 里）。';
-}
-function copyText(text){
-  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
-  return new Promise(function(resolve, reject){
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    let ok = false;
-    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
-    document.body.removeChild(ta);
-    ok ? resolve() : reject(new Error('copy failed'));
-  });
 }
 function pickNumByKeys(box, keys){
   if (!box || typeof box !== 'object') return null;
@@ -1526,12 +1371,12 @@ function fillAddForm(d){
 function useParsedAnswer(raw, fromQuery){
   const d = parseFoodAnswer(raw, fromQuery);
   if (!d){
-    setAiStatus('❌ 没能从这段内容里识别出「碳水 / 蛋白质 / 脂肪」三个数值。请把 AI 的回答整段复制过来（含 JSON 或"碳水5g"这类文字即可）。', 'err');
+    setAiStatus('❌ AI 返回的内容里没找到「碳水 / 蛋白质 / 脂肪」三个数值，可以再点一次「AI 一键查询」重试。', 'err');
     return false;
   }
   showAiResult(d);
   fillAddForm(d);
-  setAiStatus('✅ 已解析并填入下方表单，请核对（可手动改），再点「添加到食物清单」。', 'ok');
+  setAiStatus('✅ 已填入下方表单，请核对（可手动改），再点「添加到食物清单」。', 'ok');
   return true;
 }
 async function queryAiFood(){
@@ -1539,7 +1384,7 @@ async function queryAiFood(){
   if (!name){ setAiStatus('请先输入食物名称。', 'warn'); $('#aiQueryInput').focus(); return; }
   const cfg = aiConf();
   if (!cfg.key || !cfg.url){
-    setAiStatus('现在没有配置 AI key，所以用不了「一键查询」。请点「复制提示词（免 key）」到 DeepSeek 网页版问，再把回答粘到下面的框里解析；或者点「⚙️ 设置」填入 key 后即可一键自动查询。', 'warn');
+    setAiStatus('还没填 AI key，所以用不了「AI 一键查询」。点「⚙️ 设置」把 DeepSeek 的 key 填进去保存即可。', 'warn');
     openAiSettings();
     return;
   }
@@ -1559,20 +1404,37 @@ async function queryAiFood(){
     if (!res.ok){
       let msg = txt.slice(0, 150);
       try { const j = JSON.parse(txt); msg = (j.error && (j.error.message || j.error.code)) || j.message || msg; } catch(e){}
+      if (res.status === 401 || res.status === 403){
+        setAiStatus('❌ key 无效（HTTP ' + res.status + '）：' + msg + '\n' +
+          '请到 DeepSeek 控制台（platform.deepseek.com → API keys）：\n' +
+          '1) 确认 key 还在（有没有被删掉）\n' +
+          '2) 点「复制」重新复制一次，粘贴后在设置里看「已识别 XX 个字符」（正常 sk- 开头、35 位左右）\n' +
+          '3) 重新保存后再查一次', 'err');
+        return;
+      }
+      if (res.status === 402){
+        setAiStatus('❌ 余额不足（HTTP 402）：' + msg + '\n去 platform.deepseek.com → 充值 充一点就能用（每次查询不到一分钱）。', 'err');
+        return;
+      }
+      if (res.status === 404){
+        setAiStatus('❌ 接口地址不对（HTTP 404）：' + msg + '\n请在「⚙️ 设置」里把接口地址恢复为 https://api.deepseek.com/chat/completions', 'err');
+        return;
+      }
       setAiStatus('❌ 查询失败（HTTP ' + res.status + '）：' + msg, 'err');
       return;
     }
     let content = txt;
     try { content = JSON.parse(txt).choices[0].message.content; } catch(e){}
-    if (!useParsedAnswer(content, name)) $('#aiPasteBox').value = content;
-    else setAiStatus('✅ 已填入下方表单（AI 估算），请核对后点「添加到食物清单」。', 'ok');
+    if (!useParsedAnswer(content, name)){
+      setAiStatus('❌ AI 返回的内容没能解析出营养数据，再点一次试试；如果一直这样，可以在「⚙️ 设置」里换个服务商。\n（原始返回：' + String(content).slice(0, 120).replace(/\s+/g, ' ') + '）', 'err');
+    }
   } catch(e){
     const rt = await reachTest(cfg.url);
     const host = hostName(cfg.url);
     const hint = rt.ok
-      ? '接口地址本身能连通，但浏览器这次请求被拦下了。多半是「接口地址 / 模型名」填错，或该接口不允许网页直连。'
-      : '手机网络访问不了 ' + host + '。最常见原因：手机开着 VPN / 加速器 / 代理（DeepSeek 会拒绝境外 IP），或当前 Wi-Fi / 流量限制。可以换一个网络再试，或改用「⚙️ 设置 → 🧪 测试连接」里显示 ✅ 的那家服务商。';
-    setAiStatus('❌ 请求失败：' + ((e && (e.message || e.name)) || '未知错误') + '\n' + hint + '\n（也可以先用「复制提示词（免 key）」的方式查）', 'err');
+      ? '接口地址本身能连通，但这次请求被浏览器拦下了。多半是「接口地址 / 模型名」填错，或该接口不允许网页直连。'
+      : '手机网络访问不了 ' + host + '。最常见原因：手机开着 VPN / 加速器 / 代理（DeepSeek 会拒绝境外 IP），或当前 Wi-Fi / 流量限制。换一个网络再试通常就好了。';
+    setAiStatus('❌ 请求失败：' + ((e && (e.message || e.name)) || '未知错误') + '\n' + hint, 'err');
   }
 }
 function openAiSettings(){
@@ -1581,36 +1443,22 @@ function openAiSettings(){
   $('#aiBaseUrl').value = aiSettings.url || p.url;
   $('#aiModel').value = aiSettings.model || p.model;
   $('#aiKey').value = aiSettings.key || '';
+  updateKeyHint();
   $('#aiSettingsModal').classList.add('open');
 }
 function closeAiSettings(){ $('#aiSettingsModal').classList.remove('open'); }
 function saveAiSettings(){
   aiSettings = {
     provider: $('#aiProvider').value,
-    url: $('#aiBaseUrl').value.trim(),
+    url: cleanTok($('#aiBaseUrl').value),
     model: $('#aiModel').value.trim(),
-    key: $('#aiKey').value.trim()
+    key: cleanTok($('#aiKey').value)
   };
   try { localStorage.setItem(K_AI, JSON.stringify(aiSettings)); } catch(e){ toast('⚠️ 浏览器存储不可用'); }
+  updateKeyHint();
 }
 $('#aiQueryBtn').addEventListener('click', queryAiFood);
 $('#aiQueryInput').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); queryAiFood(); } });
-$('#aiParseBtn').addEventListener('click', () => {
-  const raw = $('#aiPasteBox').value.trim();
-  if (!raw){ setAiStatus('请先把 AI 的回答粘贴到下面的框里。', 'warn'); return; }
-  useParsedAnswer(raw, $('#aiQueryInput').value.trim());
-});
-$('#aiCopyPromptBtn').addEventListener('click', () => {
-  const name = $('#aiQueryInput').value.trim();
-  if (!name){ setAiStatus('请先输入食物名称，再复制提示词。', 'warn'); $('#aiQueryInput').focus(); return; }
-  const prompt = buildFoodPrompt(name);
-  copyText(prompt).then(() => {
-    setAiStatus('✅ 提示词已复制。现在切到 DeepSeek 网页版（或任意 AI），粘贴发送，然后把它的回答整段复制回来，粘到下面的框里点「解析并填入表单」。', 'ok');
-  }).catch(() => {
-    $('#aiPasteBox').value = prompt;
-    setAiStatus('复制没成功，提示词已放进下面的框里，请手动全选复制它去问 AI。', 'warn');
-  });
-});
 $('#aiSettingsBtn').addEventListener('click', openAiSettings);
 $('#aiSettingsCancel').addEventListener('click', closeAiSettings);
 $('#aiSettingsModal').addEventListener('click', e => { if (e.target.id === 'aiSettingsModal') closeAiSettings(); });
@@ -1623,8 +1471,8 @@ $('#aiSettingsForm').addEventListener('submit', e => {
   e.preventDefault();
   saveAiSettings();
   closeAiSettings();
-  if (aiSettings.key) setAiStatus('✅ AI 设置已保存，现在可以点「AI 一键查询」自动查了。', 'ok');
-  else setAiStatus('已保存（未填 key）：用「复制提示词」的方式查，或者随时点「⚙️ 设置」补上 key。', 'ok');
+  if (aiSettings.key) setAiStatus('✅ AI 设置已保存，现在可以输入食物名点「AI 一键查询」了。', 'ok');
+  else setAiStatus('已保存，但还没填 key —— 填上 key 才能用「AI 一键查询」。', 'warn');
   toast('设置已保存');
 });
 $('#aiClearKeyBtn').addEventListener('click', () => {
@@ -1632,9 +1480,10 @@ $('#aiClearKeyBtn').addEventListener('click', () => {
   saveAiSettings();
   toast('已清除 key');
 });
-$('#aiTestBtn').addEventListener('click', runConnTest);
+$('#aiKey').addEventListener('input', updateKeyHint);
 
 /* 食物弹窗 */
+$('#foodModalDelete').addEventListener('click', () => { if (state.viewFoodId) deleteCustomFood(state.viewFoodId); });
 $('#foodModalClose').addEventListener('click', closeFoodModal);
 $('#foodModalEdit').addEventListener('click', () => { if (state.viewFoodId) openEditFoodModal(state.viewFoodId); });
 $('#foodModal').addEventListener('click', e => { if (e.target.id === 'foodModal') closeFoodModal(); });
