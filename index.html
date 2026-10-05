@@ -61,7 +61,6 @@ button,input,select,textarea{touch-action:manipulation}
 .header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .daybox{text-align:right}
 .day-label{font-size:18px;font-weight:700}
-.day-hint{font-size:12px;color:var(--muted);margin-top:3px}
 
 /* ---------- neumorphic primitives ---------- */
 .card{
@@ -151,7 +150,7 @@ tr.cat-head td{
 .fname:hover{color:var(--accent)}
 .cat-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}
 .carb{background:var(--c)}.protein{background:var(--p)}.other{background:var(--accent2)}
-.qty{display:flex;align-items:center;gap:5px;justify-content:flex-end}
+.qty{display:flex;align-items:center;gap:5px;justify-content:center}
 .qty-input,.serving-input{width:76px;padding:8px 4px;text-align:center;font-size:13.5px;-moz-appearance:textfield}
 .serving-input{width:70px;color:var(--accent);font-weight:700}
 .qty-input::-webkit-inner-spin-button,.qty-input::-webkit-outer-spin-button,
@@ -162,13 +161,9 @@ tr.cat-head td{
   box-shadow:4px 4px 8px var(--dark),-4px -4px 8px var(--light);transition:all .12s;
 }
 .step:active{box-shadow:inset 3px 3px 6px var(--dark),inset -3px -3px 6px var(--light)}
-.meal-total{
-  margin-top:14px;padding:13px 16px;border-radius:16px;font-size:13.5px;color:var(--muted);
-  background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
-}
-.meal-total b{color:var(--text);font-size:14.5px}
+/* 表头与列内容对齐 */
+th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 .empty-td{text-align:center !important;color:var(--muted);padding:30px 10px}
-.col-serving-tip{font-size:10.5px;color:var(--muted);font-weight:400;display:block}
 
 /* ---------- overview ---------- */
 .overview{position:sticky;top:18px}
@@ -339,7 +334,6 @@ tr.cat-head td{
   .qty-input{width:64px;padding:9px 4px;font-size:15px}
   .serving-input{width:58px;padding:9px 4px;font-size:14px}
   .step{width:36px;height:36px;font-size:19px}
-  .meal-total{font-size:12.5px}
   .modal-actions button{flex:1}
   .cal-grid{gap:6px}
   .cal-cell{min-height:60px;padding:7px 6px 6px;border-radius:13px}
@@ -366,7 +360,6 @@ tr.cat-head td{
   </div>
   <div class="daybox">
     <div class="day-label" id="dayLabel"></div>
-    <div class="day-hint">每日记录于凌晨 4:00 自动清零并打卡</div>
   </div>
 </header>
 
@@ -385,7 +378,7 @@ tr.cat-head td{
         <div class="toolbar">
           <input class="search" id="mealSearch" placeholder="🔍 搜索食物…">
           <div class="cat-filter" id="mealCatFilter">
-            <button class="cat-filter-btn" data-cat="碳水类" type="button">碳水</button>
+            <button class="cat-filter-btn active" data-cat="碳水类" type="button">碳水</button>
             <button class="cat-filter-btn" data-cat="蛋白类" type="button">蛋白</button>
             <button class="cat-filter-btn" data-cat="其他" type="button">其他</button>
           </div>
@@ -394,18 +387,17 @@ tr.cat-head td{
           <table>
             <thead>
               <tr>
-                <th class="col-food">食物（点击查看营养）</th>
-                <th class="col-serving">一份克数(g)<span class="col-serving-tip">可修改</span></th>
+                <th class="col-food">食物</th>
+                <th class="col-serving">一份克数(g)</th>
                 <th class="col-c">碳水(g)</th>
                 <th class="col-p">蛋白(g)</th>
                 <th class="col-f">脂肪(g)</th>
-                <th class="col-qty">份数 / 数量</th>
+                <th class="col-qty">份数</th>
               </tr>
             </thead>
             <tbody id="mealBody"></tbody>
           </table>
         </div>
-        <div class="meal-total" id="mealTotals"></div>
       </div>
 
       <aside class="card overview">
@@ -436,16 +428,16 @@ tr.cat-head td{
 
       <div class="card add-card">
         <form id="addFoodForm" class="add-form">
-          <label class="field"><span>分类（AI 查到的会自动选好）</span><select id="nfCat">
+          <label class="field"><span>分类</span><select id="nfCat">
             <option value="碳水类">碳水类</option>
             <option value="蛋白类">蛋白类</option>
             <option value="其他">其他</option>
           </select></label>
-          <label class="field"><span>每份规格（g）· 1份的克重</span><input id="nfServing" type="number" min="1" step="1" value="100"></label>
+          <label class="field"><span>每份规格（g）</span><input id="nfServing" type="number" min="1" step="1" value="100"></label>
           <label class="field"><span>每100g 碳水（g）</span><input id="nfC" type="number" min="0" step="0.1" value="0"></label>
           <label class="field"><span>每100g 蛋白质（g）</span><input id="nfP" type="number" min="0" step="0.1" value="0"></label>
           <label class="field"><span>每100g 脂肪（g）</span><input id="nfF" type="number" min="0" step="0.1" value="0"></label>
-          <div class="field full kcal-preview">每100g 热量（自动计算）：<b id="nfKcal">0</b> kcal</div>
+          <div class="field full kcal-preview">每100g 热量：<b id="nfKcal">0</b> kcal</div>
           <div class="form-actions">
             <button class="btn btn-primary" type="submit" id="addFoodBtn">添加到食物清单</button>
             <button class="btn hidden" type="button" id="cancelEditBtn">取消编辑</button>
@@ -476,7 +468,6 @@ tr.cat-head td{
 <div class="modal-overlay" id="targetModal">
   <div class="modal card">
     <h3>调整体重与每日目标</h3>
-    <p class="modal-sub">碳水、蛋白质目标 = 体重 × 系数（系数可自己调）；脂肪目标为固定克数；热量按 4/4/9 自动计算。</p>
     <div class="weight-field">
       <label for="targetWeightInput">当前体重（kg）</label>
       <input id="targetWeightInput" type="number" min="20" max="300" step="0.1">
@@ -484,7 +475,7 @@ tr.cat-head td{
       <input id="targetFatInput" type="number" min="0" step="1" style="width:90px">
     </div>
     <div class="mult-editor">
-      <div class="mult-title">每日目标系数<span class="muted">碳水 g/kg · 蛋白 g/kg，改完即时看到下面的目标值</span></div>
+      <div class="mult-title">每日目标系数</div>
       <div class="mult-row">
         <span class="mult-label">训练日</span>
         <label for="multTrainC">碳水 ×<input class="mult-input" id="multTrainC" type="number" min="0.5" max="20" step="0.1" inputmode="decimal"></label>
@@ -501,11 +492,12 @@ tr.cat-head td{
     </div>
     <div class="target-grid" id="targetGrid"></div>
     <div class="data-row">
-      <span class="data-row-title">数据（只存在本机浏览器，不会上传）</span>
+      <span class="data-row-title">数据</span>
       <div class="data-row-actions">
         <button class="btn btn-sm" id="exportBtn" type="button">⬇️ 导出备份</button>
         <button class="btn btn-sm" id="importBtn" type="button">⬆️ 导入备份</button>
         <input type="file" id="importFile" accept="application/json" hidden>
+        <button class="btn btn-sm hidden" id="restoreHiddenBtn" type="button">↩️ 恢复已移除的食物</button>
         <button class="btn btn-sm btn-danger-ghost" id="resetDataBtn" type="button">重置数据</button>
       </div>
     </div>
@@ -524,7 +516,7 @@ tr.cat-head td{
     <div class="food-detail-grid single" id="foodModalBody"></div>
     <div class="modal-actions">
       <button class="btn btn-primary" id="foodModalEdit" type="button">✏️ 编辑营养数据</button>
-      <button class="btn btn-danger-ghost hidden" id="foodModalDelete" type="button">🗑 删除这个食物</button>
+      <button class="btn btn-danger-ghost" id="foodModalDelete" type="button">🗑 删除这个食物</button>
       <button class="btn" id="foodModalClose" type="button">关闭</button>
     </div>
   </div>
@@ -545,7 +537,7 @@ tr.cat-head td{
       <label class="field"><span>每100g 碳水（g）</span><input id="efC" type="number" min="0" step="0.1"></label>
       <label class="field"><span>每100g 蛋白质（g）</span><input id="efP" type="number" min="0" step="0.1"></label>
       <label class="field"><span>每100g 脂肪（g）</span><input id="efF" type="number" min="0" step="0.1"></label>
-      <div class="field full kcal-preview">每100g 热量（自动计算）：<b id="efKcal">0</b> kcal</div>
+      <div class="field full kcal-preview">每100g 热量：<b id="efKcal">0</b> kcal</div>
       <div class="form-actions">
         <button class="btn btn-primary" type="submit">保存修改</button>
         <button class="btn btn-danger-ghost hidden" id="efRestoreBtn" type="button">恢复默认</button>
@@ -559,7 +551,7 @@ tr.cat-head td{
 <div class="modal-overlay" id="aiSettingsModal">
   <div class="modal card">
     <h3>AI 查询设置</h3>
-    <p class="modal-sub">填上 key 就能「AI 一键查询」自动填入营养数据。key 只保存在本机浏览器（localStorage），不会上传到任何服务器，也不会写进备份文件。</p>
+    <p class="modal-sub">key 只存在本机浏览器，不会上传到任何服务器。</p>
     <form id="aiSettingsForm" class="add-form">
       <label class="field full"><span>服务商</span><select id="aiProvider">
         <option value="deepseek">DeepSeek（推荐，便宜）</option>
@@ -623,6 +615,7 @@ const K_RECORDS = 'diet_records_v1';
 const K_SETTINGS = 'diet_settings_v1';
 const K_OVERRIDES = 'diet_overrides_v1';
 const K_WEIGHTS = 'diet_weights_v1';
+const K_HIDDEN = 'diet_hidden_v1';
 const K_AI = 'diet_ai_v1';
 
 /* ================= 存储与状态 ================= */
@@ -639,6 +632,7 @@ function saveAll(){
     localStorage.setItem(K_SETTINGS, JSON.stringify(settings));
     localStorage.setItem(K_OVERRIDES, JSON.stringify(overrides));
     localStorage.setItem(K_WEIGHTS, JSON.stringify(weights));
+    localStorage.setItem(K_HIDDEN, JSON.stringify(hiddenFoods));
   }catch(e){ toast('⚠️ 浏览器存储不可用'); }
 }
 
@@ -647,8 +641,9 @@ let records = loadJSON(K_RECORDS, {});
 let settings = Object.assign({ dayType: 'train', weight: 60, fat: 60 }, loadJSON(K_SETTINGS, {}));
 let overrides = loadJSON(K_OVERRIDES, {});
 let weights = loadJSON(K_WEIGHTS, {});
+let hiddenFoods = loadJSON(K_HIDDEN, []);   // 被移除了的内置食物
 
-const state = { tab: 'today', search: '', catFilter: '全部', calYear: null, calMonth: null, viewFoodId: null, editFoodId: null };
+const state = { tab: 'today', search: '', catFilter: '碳水类', calYear: null, calMonth: null, viewFoodId: null, editFoodId: null };
 let currentDayKey = dietDateKey();
 
 const $ = s => document.querySelector(s);
@@ -728,7 +723,7 @@ function calcPerServing(per100, serving){
   };
 }
 function foodList(){
-  const list = BUILTIN_FOODS.map(base => {
+  const list = BUILTIN_FOODS.filter(base => hiddenFoods.indexOf(base.id) < 0).map(base => {
     const ov = overrides[base.id] || {};
     const per100 = Object.assign({}, base.per100, ov.per100 || {});
     const serving = ov.serving != null ? ov.serving : base.serving;
@@ -878,11 +873,6 @@ function renderMealTable(){
     });
   });
   $('#mealBody').innerHTML = html || '<tr><td colspan="6" class="empty-td">没有找到匹配的食物</td></tr>';
-  renderMealTotals();
-}
-function renderMealTotals(){
-  const { total } = calcTotals();
-  $('#mealTotals').innerHTML = `今日合计：碳水 <b>${fmtNum(total.c)}</b> g · 蛋白 <b>${fmtNum(total.p)}</b> g · 脂肪 <b>${fmtNum(total.f)}</b> g · 热量 <b>${fmtK(total.kcal)}</b> kcal`;
 }
 
 /* ================= 食物详情与编辑 ================= */
@@ -891,24 +881,43 @@ function openFoodModal(fid){
   if (!f) return;
   state.viewFoodId = fid;
   $('#foodModalTitle').textContent = f.name + ' · 营养详情';
-  $('#foodModalSub').textContent = '分类：' + f.cat + (f.builtin ? '（内置食物）' : '（自定义食物）');
+  $('#foodModalSub').textContent = f.cat;
   $('#foodModalBody').innerHTML = `
     <div class="food-detail-box"><div class="fd-title">每100g 营养成分</div><div class="fd-val">碳水 ${fmtNum(f.per100.c)}g<br>蛋白质 ${fmtNum(f.per100.p)}g<br>脂肪 ${fmtNum(f.per100.f)}g<br>热量 ${fmtK(f.per100.kcal)} kcal</div></div>`;
-  $('#foodModalDelete').classList.toggle('hidden', !!f.builtin);   // 内置食物不能删
   $('#foodModal').classList.add('open');
 }
 function closeFoodModal(){ $('#foodModal').classList.remove('open'); state.viewFoodId = null; }
-function deleteCustomFood(fid){
+function deleteFood(fid){
   const f = foodMap().get(fid);
-  if (!f || f.builtin) return;
+  if (!f) return;
   const used = Object.values(records).some(rec => (rec.entries || {})[fid] > 0);
   if (used){ toast('「' + f.name + '」已在记录中使用，暂不能删除'); return; }
   if (!confirm('确定删除「' + f.name + '」吗？')) return;
-  customFoods = customFoods.filter(x => x.id !== fid);
+  if (f.builtin){
+    if (hiddenFoods.indexOf(fid) < 0) hiddenFoods.push(fid);
+    toast('已移除「' + f.name + '」');
+  } else {
+    customFoods = customFoods.filter(x => x.id !== fid);
+    toast('已删除「' + f.name + '」');
+  }
   saveAll();
   closeFoodModal();
   renderMealTable();
-  toast('已删除「' + f.name + '」');
+}
+function restoreHiddenFoods(){
+  const n = hiddenFoods.length;
+  if (!n) return;
+  hiddenFoods = [];
+  saveAll();
+  renderMealTable();
+  syncHiddenBtn();
+  toast('已恢复 ' + n + ' 种被移除的食物');
+}
+function syncHiddenBtn(){
+  const btn = $('#restoreHiddenBtn');
+  if (!btn) return;
+  btn.classList.toggle('hidden', hiddenFoods.length === 0);
+  btn.textContent = '↩️ 恢复已移除的食物（' + hiddenFoods.length + '）';
 }
 
 function openEditFoodModal(fid){
@@ -995,12 +1004,10 @@ function setFoodServingLive(fid, grams){
     if (p) p.textContent = fmtNum(f.perServing.p);
     if (ff) ff.textContent = fmtNum(f.perServing.f);
   }
-  renderMealTotals();
   renderOverview();
 }
 function finalizeServingEdit(fid){
   renderOverview();
-  renderMealTotals();
 }
 function setCount(fid, displayVal){
   const f = foodMap().get(fid);
@@ -1015,7 +1022,6 @@ function setCount(fid, displayVal){
   saveAll();
   const input = document.querySelector('.qty-input[data-fid="' + fid + '"]');
   if (input) input.value = trimNum(count);
-  renderMealTotals();
   renderOverview();
 }
 
@@ -1450,7 +1456,7 @@ $('#aiClearKeyBtn').addEventListener('click', () => {
 $('#aiKey').addEventListener('input', updateKeyHint);
 
 /* 食物弹窗 */
-$('#foodModalDelete').addEventListener('click', () => { if (state.viewFoodId) deleteCustomFood(state.viewFoodId); });
+$('#foodModalDelete').addEventListener('click', () => { if (state.viewFoodId) deleteFood(state.viewFoodId); });
 $('#foodModalClose').addEventListener('click', closeFoodModal);
 $('#foodModalEdit').addEventListener('click', () => { if (state.viewFoodId) openEditFoodModal(state.viewFoodId); });
 $('#foodModal').addEventListener('click', e => { if (e.target.id === 'foodModal') closeFoodModal(); });
@@ -1509,6 +1515,7 @@ function openTargetModal(){
     $('#' + MULT_FIELDS[k].p).value = trimNum(ms[k].p);
   });
   renderTargetPreview();
+  syncHiddenBtn();
   $('#targetModal').classList.add('open');
 }
 function closeTargetModal(){ $('#targetModal').classList.remove('open'); }
@@ -1545,7 +1552,6 @@ $('#saveTargetsBtn').addEventListener('click', () => {
   closeTargetModal();
   renderHeader();
   renderOverview();
-  renderMealTotals();
   if (state.tab === 'trend') renderCalendar();
   const t = getTargets();
   toast('已更新：' + t.label + ' 碳' + t.c + ' / 蛋' + t.p + ' / 脂' + t.f + ' g · ' + t.kcal + ' kcal');
@@ -1553,16 +1559,17 @@ $('#saveTargetsBtn').addEventListener('click', () => {
 
 /* 备份 / 恢复 */
 $('#exportBtn').addEventListener('click', () => {
-  const data = { foods: customFoods, overrides, records, weights, settings, exportedAt: new Date().toISOString() };
+  const data = { foods: customFoods, overrides, records, weights, settings, hidden: hiddenFoods, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = '饮食打卡备份-' + currentDayKey + '.json';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  toast('已导出备份文件');
+  toast('已导出备份');
 });
 $('#importBtn').addEventListener('click', () => $('#importFile').click());
+$('#restoreHiddenBtn').addEventListener('click', restoreHiddenFoods);
 $('#importFile').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -1576,27 +1583,30 @@ $('#importFile').addEventListener('change', e => {
       overrides = data.overrides && typeof data.overrides === 'object' ? data.overrides : {};
       records = data.records && typeof data.records === 'object' ? data.records : {};
       weights = data.weights && typeof data.weights === 'object' ? data.weights : {};
+      hiddenFoods = Array.isArray(data.hidden) ? data.hidden : [];
       settings = Object.assign({ dayType: 'train', weight: 60, fat: 60 }, data.settings || {});
       normalizeSettings();
       normalizeCustomFoods();
       normalizeRecords();
       saveAll();
       renderAll();
+      syncHiddenBtn();
       toast('导入成功');
     }catch(err){ toast('导入失败：文件格式不正确'); }
   };
   reader.readAsText(file);
   e.target.value = '';
 });
-$('#resetDataBtn').addEventListener('click', () => {
-  if (!confirm('确定清除所有记录、自定义食物、体重与设置吗？建议先导出备份。')) return;
+$('#resetDataBtn').addEventListener('click', () => {  if (!confirm('确定清除所有记录、自定义食物、体重与设置吗？建议先导出备份。')) return;
   customFoods = [];
   overrides = {};
   records = {};
   weights = {};
+  hiddenFoods = [];
   settings = { dayType: 'train', weight: 60, fat: 60 };
   saveAll();
   renderAll();
+  syncHiddenBtn();
   toast('已重置全部数据');
 });
 
@@ -1616,6 +1626,7 @@ setInterval(checkDayRollover, 30000);
 normalizeSettings();
 normalizeCustomFoods();
 normalizeRecords();
+syncHiddenBtn();
 renderAll();
 if (window.matchMedia('(max-width:1000px)').matches && 'IntersectionObserver' in window){
   const mealCard = document.querySelector('.meal-card');
