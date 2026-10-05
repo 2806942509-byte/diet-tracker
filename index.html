@@ -186,7 +186,35 @@ tr.cat-head td{
 
 /* ---------- library ---------- */
 .library-layout{display:flex;flex-direction:column;gap:22px}
-.library-layout .card:last-child{order:-1}
+.library-layout .srch-card{order:1}
+.library-layout .add-card{order:2}
+.library-layout .lib-list-card{order:3}
+
+/* ---------- 联网查营养 ---------- */
+.srch-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.srch-input{flex:1 1 240px;min-width:170px;width:auto;padding:11px 14px;font-size:14px}
+.srch-status{
+  font-size:12.5px;line-height:1.65;margin-bottom:12px;padding:10px 14px;border-radius:14px;color:var(--muted);
+  background:var(--card);box-shadow:inset 3px 3px 7px var(--dark),inset -3px -3px 7px var(--light);
+}
+.srch-status.ok{color:#3d9a78}
+.srch-status.warn{color:#b07d1e}
+.srch-status.err{color:var(--danger)}
+.srch-result{margin-bottom:12px}
+.srch-hit{padding:13px 15px;border-radius:16px;background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light)}
+.srch-hit-name{font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.srch-hit-tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(108,196,161,.16);color:#3d9a78}
+.srch-hit-nums{font-size:12.5px;color:var(--muted);margin:7px 0 10px;line-height:1.7}
+.srch-hit-nums b{color:var(--text);font-size:13.5px}
+.srch-manual{border-top:1px solid rgba(59,68,83,.08);padding-top:12px}
+.srch-manual-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.srch-textarea{
+  width:100%;padding:11px 13px;border:none;border-radius:14px;font-size:13px;font-family:inherit;resize:vertical;
+  background:var(--card);color:var(--text);outline:none;
+  box-shadow:inset 4px 4px 9px var(--dark),inset -4px -4px 9px var(--light);
+}
+.srch-textarea:focus{box-shadow:inset 4px 4px 9px var(--dark),inset -4px -4px 9px var(--light),0 0 0 2px rgba(79,147,208,.25)}
+.srch-note{margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.65}
 .lib-table th{text-align:center}
 .lib-table td{text-align:center}
 .lib-table td:first-child,.lib-table .fname{text-align:left}
@@ -436,7 +464,7 @@ tr.cat-head td{
   <!-- ================= 食物库 ================= -->
   <section id="tab-library" class="tab-panel">
     <div class="library-layout">
-      <div class="card">
+      <div class="card lib-list-card">
         <div class="card-title">🍎 食物清单 <span class="muted" style="font-size:12px;font-weight:400">（点击食物可查看每100g营养）</span></div>
         <div class="toolbar">
           <input class="search" id="libSearch" placeholder="🔍 搜索食物…">
@@ -465,7 +493,28 @@ tr.cat-head td{
         <div class="lib-count" id="libCount"></div>
       </div>
 
-      <div class="card">
+      <!-- 联网查询每100g营养 -->
+      <div class="card srch-card">
+        <div class="card-title">🔍 联网查营养 <span class="muted" style="font-size:12px;font-weight:400">（查「每100g 碳水/蛋白/脂肪」）</span></div>
+        <div class="srch-bar">
+          <input class="search srch-input" id="aiQueryInput" placeholder="输入食物名称，如：红烧肉、无糖酸奶、麦当劳巨无霸">
+          <button class="btn btn-primary" id="aiQueryBtn" type="button">AI 一键查询</button>
+          <button class="btn" id="aiCopyPromptBtn" type="button">复制提示词（免 key）</button>
+          <button class="btn btn-sm btn-ghost" id="aiSettingsBtn" type="button">⚙️ 设置</button>
+        </div>
+        <div class="srch-status" id="aiStatus">没填 AI key 也能用：点「复制提示词」→ 粘到 DeepSeek 网页版问 → 把回答整段复制回来，粘到下面的框里点「解析并填入表单」。</div>
+        <div id="aiResult" class="srch-result hidden"></div>
+        <div class="srch-manual">
+          <div class="srch-manual-head">
+            <span>把 AI 的回答粘贴到这里</span>
+            <button class="btn btn-sm" id="aiParseBtn" type="button">解析并填入表单</button>
+          </div>
+          <textarea class="srch-textarea" id="aiPasteBox" rows="3" placeholder='支持两种格式：{"name":"红烧肉","per100":{"c":5,"p":12,"f":18}}  或者  碳水5g 蛋白质12g 脂肪18g'></textarea>
+        </div>
+        <p class="srch-note">AI 给的是估算值，请核对后手动修正，再点下面表单的「添加到食物清单」。AI key（如果填了）只保存在你本机浏览器，不会上传到任何服务器。</p>
+      </div>
+
+      <div class="card add-card">
         <div class="card-title" id="addFormTitle">➕ 新增食物</div>
         <form id="addFoodForm" class="add-form">
           <label class="field full"><span>食物名称</span><input id="nfName" required placeholder="如：燕麦片"></label>
@@ -596,6 +645,32 @@ tr.cat-head td{
   </div>
 </div>
 
+<!-- AI 设置弹窗 -->
+<div class="modal-overlay" id="aiSettingsModal">
+  <div class="modal card">
+    <h3>AI 查询设置</h3>
+    <p class="modal-sub">填了 key 就能「AI 一键查询」自动填入；不填也能用「复制提示词」到免费网页版问。key 只保存在本机浏览器（localStorage），不会上传到任何服务器，也不会写进备份文件。</p>
+    <form id="aiSettingsForm" class="add-form">
+      <label class="field full"><span>服务商</span><select id="aiProvider">
+        <option value="deepseek">DeepSeek（推荐，便宜）</option>
+        <option value="zhipu">智谱 GLM（glm-4-flash 免费）</option>
+        <option value="kimi">Kimi / 月之暗面</option>
+        <option value="siliconflow">硅基流动 SiliconFlow</option>
+        <option value="dashscope">通义千问 DashScope</option>
+        <option value="custom">自定义（OpenAI 兼容接口）</option>
+      </select></label>
+      <label class="field full"><span>接口地址</span><input id="aiBaseUrl" placeholder="https://api.deepseek.com/chat/completions"></label>
+      <label class="field"><span>模型名</span><input id="aiModel" placeholder="deepseek-chat"></label>
+      <label class="field"><span>API Key</span><input id="aiKey" type="password" placeholder="sk-...（留空则只用复制提示词）"></label>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">保存</button>
+        <button class="btn btn-danger-ghost" type="button" id="aiClearKeyBtn">清除 key</button>
+        <button class="btn" type="button" id="aiSettingsCancel">取消</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="float-summary" id="floatSummary"></div>
 <div class="toast" id="toast"></div>
 
@@ -637,6 +712,7 @@ const K_RECORDS = 'diet_records_v1';
 const K_SETTINGS = 'diet_settings_v1';
 const K_OVERRIDES = 'diet_overrides_v1';
 const K_WEIGHTS = 'diet_weights_v1';
+const K_AI = 'diet_ai_v1';
 
 /* ================= 存储与状态 ================= */
 function loadJSON(k, fb){
@@ -1279,6 +1355,216 @@ $('#addFoodForm').addEventListener('submit', e => {
 });
 $('#cancelEditBtn').addEventListener('click', resetAddForm);
 ['nfC', 'nfP', 'nfF'].forEach(id => $('#' + id).addEventListener('input', updateKcalPreview));
+
+/* ================= 联网查营养（AI 查询 / 复制提示词） ================= */
+const AI_PROVIDERS = {
+  deepseek:    { label: 'DeepSeek',   url: 'https://api.deepseek.com/chat/completions',                            model: 'deepseek-chat' },
+  zhipu:       { label: '智谱 GLM',   url: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',                model: 'glm-4-flash' },
+  kimi:        { label: 'Kimi',       url: 'https://api.moonshot.cn/v1/chat/completions',                          model: 'moonshot-v1-8k' },
+  siliconflow: { label: '硅基流动',   url: 'https://api.siliconflow.cn/v1/chat/completions',                      model: 'Qwen/Qwen2.5-7B-Instruct' },
+  dashscope:   { label: '通义千问',   url: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',  model: 'qwen-turbo' },
+  custom:      { label: '自定义',     url: '', model: '' }
+};
+let aiSettings = Object.assign({ provider: 'deepseek', url: '', model: '', key: '' }, loadJSON(K_AI, {}));
+
+function aiConf(){
+  const p = AI_PROVIDERS[aiSettings.provider] || AI_PROVIDERS.deepseek;
+  return {
+    url: String(aiSettings.url || p.url || '').trim(),
+    model: String(aiSettings.model || p.model || '').trim(),
+    key: String(aiSettings.key || '').trim()
+  };
+}
+function setAiStatus(msg, kind){
+  const el = $('#aiStatus');
+  el.className = 'srch-status' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+}
+function buildFoodPrompt(name){
+  return '请给出「' + name + '」每100克可食部分的营养估算。只输出一行 JSON，不要解释、不要代码块标记，格式严格如下：\n' +
+    '{"name":"食物名","per100":{"c":碳水克数,"p":蛋白质克数,"f":脂肪克数}}\n' +
+    '说明：数值用数字（可含小数）；按最常见的状态估算（如"红烧肉"按熟食、"大米"按生米请注明在 name 里）。';
+}
+function copyText(text){
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+  return new Promise(function(resolve, reject){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+    document.body.removeChild(ta);
+    ok ? resolve() : reject(new Error('copy failed'));
+  });
+}
+function pickNumByKeys(box, keys){
+  if (!box || typeof box !== 'object') return null;
+  for (const k of keys){
+    if (box[k] != null && isFinite(Number(box[k]))) return Number(box[k]);
+  }
+  return null;
+}
+function pickNumByRegex(s, labels){
+  for (const lb of labels){
+    const m = s.match(new RegExp('(?:' + lb + ')\\s*[:：=]?\\s*(\\d+(?:\\.\\d+)?)\\s*(?:g|G|克)?'));
+    if (m) return Number(m[1]);
+  }
+  return null;
+}
+function parseFoodAnswer(text, fallbackName){
+  const s = String(text == null ? '' : text);
+  let name = fallbackName || '', c = null, p = null, f = null;
+  const a = s.indexOf('{'), b = s.lastIndexOf('}');
+  if (a >= 0 && b > a){
+    try {
+      const j = JSON.parse(s.slice(a, b + 1));
+      const box = j.per100 || j.per_100g || j.per100g || j.nutrition || j;
+      name = String(j.name || j.food || j.food_name || fallbackName || '').trim();
+      c = pickNumByKeys(box, ['c', 'carbs', 'carb', 'carbohydrate', 'carbohydrates', '碳水', '碳水化合物']);
+      p = pickNumByKeys(box, ['p', 'protein', 'proteins', 'protein_g', '蛋白质', '蛋白']);
+      f = pickNumByKeys(box, ['f', 'fat', 'fats', 'fat_g', '脂肪']);
+    } catch(e){}
+  }
+  if (c == null) c = pickNumByRegex(s, ['碳水化合物', '碳水', 'carbs?', 'carbohydrate']);
+  if (p == null) p = pickNumByRegex(s, ['蛋白质', '蛋白', 'proteins?']);
+  if (f == null) f = pickNumByRegex(s, ['脂肪', 'fats?']);
+  if (c == null || p == null || f == null) return null;
+  return { name: name || fallbackName || '', c: c, p: p, f: f };
+}
+function showAiResult(d){
+  const kcal = d.c * 4 + d.p * 4 + d.f * 9;
+  const box = $('#aiResult');
+  box.classList.remove('hidden');
+  box.innerHTML = '<div class="srch-hit">' +
+    '<div class="srch-hit-name">' + esc(d.name || '(未命名)') + '<span class="srch-hit-tag">AI 估算</span></div>' +
+    '<div class="srch-hit-nums">每100g：碳水 <b>' + fmtNum(d.c) + '</b> g · 蛋白质 <b>' + fmtNum(d.p) + '</b> g · 脂肪 <b>' + fmtNum(d.f) + '</b> g · 热量 <b>' + fmtK(kcal) + '</b> kcal</div>' +
+    '<button class="btn btn-sm btn-primary" id="aiRefillBtn" type="button">↺ 重新填入表单</button>' +
+    '</div>';
+  $('#aiRefillBtn').addEventListener('click', function(){ fillAddForm(d); toast('已重新填入表单'); });
+}
+function fillAddForm(d){
+  if (!d) return false;
+  $('#nfName').value = d.name || '';
+  $('#nfC').value = trimNum(d.c);
+  $('#nfP').value = trimNum(d.p);
+  $('#nfF').value = trimNum(d.f);
+  const sv = parseFloat($('#nfServing').value);
+  if (!sv || sv <= 0) $('#nfServing').value = '100';
+  state.editFoodId = null;
+  $('#addFormTitle').textContent = '➕ 新增食物';
+  $('#addFoodBtn').textContent = '添加到食物清单';
+  $('#cancelEditBtn').classList.add('hidden');
+  updateKcalPreview();
+  const card = document.querySelector('.add-card');
+  if (card && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return true;
+}
+function useParsedAnswer(raw, fromQuery){
+  const d = parseFoodAnswer(raw, fromQuery);
+  if (!d){
+    setAiStatus('❌ 没能从这段内容里识别出「碳水 / 蛋白质 / 脂肪」三个数值。请把 AI 的回答整段复制过来（含 JSON 或"碳水5g"这类文字即可）。', 'err');
+    return false;
+  }
+  showAiResult(d);
+  fillAddForm(d);
+  setAiStatus('✅ 已解析并填入下方表单，请核对（可手动改），再点「添加到食物清单」。', 'ok');
+  return true;
+}
+async function queryAiFood(){
+  const name = $('#aiQueryInput').value.trim();
+  if (!name){ setAiStatus('请先输入食物名称。', 'warn'); $('#aiQueryInput').focus(); return; }
+  const cfg = aiConf();
+  if (!cfg.key || !cfg.url){
+    setAiStatus('现在没有配置 AI key，所以用不了「一键查询」。请点「复制提示词（免 key）」到 DeepSeek 网页版问，再把回答粘到下面的框里解析；或者点「⚙️ 设置」填入 key 后即可一键自动查询。', 'warn');
+    openAiSettings();
+    return;
+  }
+  setAiStatus('正在查询「' + name + '」…');
+  try {
+    const res = await fetch(cfg.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [{ role: 'user', content: buildFoodPrompt(name) }],
+        temperature: 0.2,
+        max_tokens: 300
+      })
+    });
+    const txt = await res.text();
+    if (!res.ok){
+      let msg = txt.slice(0, 150);
+      try { const j = JSON.parse(txt); msg = (j.error && (j.error.message || j.error.code)) || j.message || msg; } catch(e){}
+      setAiStatus('❌ 查询失败（HTTP ' + res.status + '）：' + msg, 'err');
+      return;
+    }
+    let content = txt;
+    try { content = JSON.parse(txt).choices[0].message.content; } catch(e){}
+    if (!useParsedAnswer(content, name)) $('#aiPasteBox').value = content;
+    else setAiStatus('✅ 已填入下方表单（AI 估算），请核对后点「添加到食物清单」。', 'ok');
+  } catch(e){
+    setAiStatus('❌ 请求失败：' + e.message + '。可能是网络问题或该接口不允许浏览器直连，可以改用「复制提示词」的方式。', 'err');
+  }
+}
+function openAiSettings(){
+  const p = AI_PROVIDERS[aiSettings.provider] || AI_PROVIDERS.deepseek;
+  $('#aiProvider').value = AI_PROVIDERS[aiSettings.provider] ? aiSettings.provider : 'deepseek';
+  $('#aiBaseUrl').value = aiSettings.url || p.url;
+  $('#aiModel').value = aiSettings.model || p.model;
+  $('#aiKey').value = aiSettings.key || '';
+  $('#aiSettingsModal').classList.add('open');
+}
+function closeAiSettings(){ $('#aiSettingsModal').classList.remove('open'); }
+function saveAiSettings(){
+  aiSettings = {
+    provider: $('#aiProvider').value,
+    url: $('#aiBaseUrl').value.trim(),
+    model: $('#aiModel').value.trim(),
+    key: $('#aiKey').value.trim()
+  };
+  try { localStorage.setItem(K_AI, JSON.stringify(aiSettings)); } catch(e){ toast('⚠️ 浏览器存储不可用'); }
+}
+$('#aiQueryBtn').addEventListener('click', queryAiFood);
+$('#aiQueryInput').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); queryAiFood(); } });
+$('#aiParseBtn').addEventListener('click', () => {
+  const raw = $('#aiPasteBox').value.trim();
+  if (!raw){ setAiStatus('请先把 AI 的回答粘贴到下面的框里。', 'warn'); return; }
+  useParsedAnswer(raw, $('#aiQueryInput').value.trim());
+});
+$('#aiCopyPromptBtn').addEventListener('click', () => {
+  const name = $('#aiQueryInput').value.trim();
+  if (!name){ setAiStatus('请先输入食物名称，再复制提示词。', 'warn'); $('#aiQueryInput').focus(); return; }
+  const prompt = buildFoodPrompt(name);
+  copyText(prompt).then(() => {
+    setAiStatus('✅ 提示词已复制。现在切到 DeepSeek 网页版（或任意 AI），粘贴发送，然后把它的回答整段复制回来，粘到下面的框里点「解析并填入表单」。', 'ok');
+  }).catch(() => {
+    $('#aiPasteBox').value = prompt;
+    setAiStatus('复制没成功，提示词已放进下面的框里，请手动全选复制它去问 AI。', 'warn');
+  });
+});
+$('#aiSettingsBtn').addEventListener('click', openAiSettings);
+$('#aiSettingsCancel').addEventListener('click', closeAiSettings);
+$('#aiSettingsModal').addEventListener('click', e => { if (e.target.id === 'aiSettingsModal') closeAiSettings(); });
+$('#aiProvider').addEventListener('change', () => {
+  const p = AI_PROVIDERS[$('#aiProvider').value] || AI_PROVIDERS.deepseek;
+  $('#aiBaseUrl').value = p.url;
+  $('#aiModel').value = p.model;
+});
+$('#aiSettingsForm').addEventListener('submit', e => {
+  e.preventDefault();
+  saveAiSettings();
+  closeAiSettings();
+  if (aiSettings.key) setAiStatus('✅ AI 设置已保存，现在可以点「AI 一键查询」自动查了。', 'ok');
+  else setAiStatus('已保存（未填 key）：用「复制提示词」的方式查，或者随时点「⚙️ 设置」补上 key。', 'ok');
+  toast('设置已保存');
+});
+$('#aiClearKeyBtn').addEventListener('click', () => {
+  $('#aiKey').value = '';
+  saveAiSettings();
+  toast('已清除 key');
+});
 
 /* 食物弹窗 */
 $('#foodModalClose').addEventListener('click', closeFoodModal);
