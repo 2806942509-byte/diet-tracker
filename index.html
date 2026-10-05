@@ -190,7 +190,6 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   background:var(--card);border:none;border-radius:11px;color:var(--text);outline:none;
   box-shadow:inset 3px 3px 7px var(--dark),inset -3px -3px 7px var(--light);
 }
-.manual-add input.manual-note{width:110px;text-align:left;font-size:13px}
 .manual-del{color:var(--danger) !important}
 /* 拍食物估算面板 */
 .dish-panel{
@@ -405,7 +404,6 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   .day-week{font-size:11.5px;padding:5px 10px}
   .manual-add{gap:6px 8px;padding:9px 10px}
   .manual-add input{width:54px}
-  .manual-add input.manual-note{width:82px}
   /* 食物明细表：把输入框和按钮收窄，避免小屏要横向拖动 */
   th{padding:8px 5px}
   td{padding:7px 5px}
@@ -477,7 +475,6 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
           <label>碳水<input id="mC" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
           <label>蛋白<input id="mP" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
           <label>脂肪<input id="mF" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></label>
-          <input class="manual-note" id="mNote" type="text" placeholder="备注(可空)">
           <button class="btn btn-sm btn-primary" id="mAddBtn" type="button">加入</button>
         </div>
         <div class="table-wrap">
@@ -930,9 +927,9 @@ function addManual(){
   if (c <= 0 && p <= 0 && f <= 0){ toast('至少填一个数值'); return; }
   if (c < 0 || p < 0 || f < 0){ toast('数值不能为负'); return; }
   const rec = getRec();
-  rec.manual.push({ id: 'm' + Date.now(), c: c, p: p, f: f, note: $('#mNote').value.trim() });
+  rec.manual.push({ id: 'm' + Date.now(), c: c, p: p, f: f, note: '' });
   saveAll();
-  $('#mC').value = ''; $('#mP').value = ''; $('#mF').value = ''; $('#mNote').value = '';
+  $('#mC').value = ''; $('#mP').value = ''; $('#mF').value = '';
   renderMealTable();
   renderOverview();
   toast('已加入：碳水 ' + fmtNum(c) + ' / 蛋白 ' + fmtNum(p) + ' / 脂肪 ' + fmtNum(f) + ' g');
@@ -1365,7 +1362,7 @@ $('#mealBody').addEventListener('change', e => {
 
 /* 手填营养素 */
 $('#mAddBtn').addEventListener('click', addManual);
-['mC', 'mP', 'mF', 'mNote'].forEach(id => $('#' + id).addEventListener('keydown', e => {
+['mC', 'mP', 'mF'].forEach(id => $('#' + id).addEventListener('keydown', e => {
   if (e.key === 'Enter'){ e.preventDefault(); addManual(); }
 }));
 
