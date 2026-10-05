@@ -60,18 +60,19 @@ button,input,select,textarea{touch-action:manipulation}
 }
 .header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
 .daybox{text-align:center;width:100%}
-/* 日期 + 周几 同一行：日期用宋体（衬线）深墨色，周几用主题蓝、拉开字距 */
-.day-line{display:flex;align-items:baseline;justify-content:center;gap:9px;flex-wrap:wrap}
+/* 日期一行：与全站同一套无衬线字体，日期加粗深墨色 + 周几做成软蓝胶囊（呼应界面里的圆角块） */
+.day-line{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
 .day-label{
-  font-family:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",Georgia,"Times New Roman",serif;
-  font-size:clamp(23px,6.2vw,30px);
-  font-weight:600;letter-spacing:.04em;line-height:1.15;
-  color:#26374b;
-  text-shadow:0 1px 0 rgba(255,255,255,.9);
+  font-size:clamp(22px,5.6vw,26px);
+  font-weight:800;letter-spacing:.005em;line-height:1.12;
+  color:#2b3648;
+  font-variant-numeric:tabular-nums;
 }
 .day-week{
-  font-size:12.5px;font-weight:700;letter-spacing:.18em;color:var(--accent);
-  font-family:"Songti SC","STSong",Georgia,serif;
+  font-size:12px;font-weight:700;letter-spacing:.06em;line-height:1;
+  color:#4585c4;background:rgba(91,155,213,.16);
+  padding:6px 12px;border-radius:999px;
+  align-self:center;
 }
 
 /* ---------- neumorphic primitives ---------- */
@@ -400,7 +401,8 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   .cal-date{font-size:11px}
   .cal-tone{width:8px;height:8px;top:6px;right:6px}
   .cal-wd{font-size:10.5px}
-  .day-label{font-size:clamp(21px,6vw,26px)}
+  .day-label{font-size:clamp(20px,5.4vw,23px)}
+  .day-week{font-size:11.5px;padding:5px 10px}
   .manual-add{gap:6px 8px;padding:9px 10px}
   .manual-add input{width:54px}
   .manual-add input.manual-note{width:82px}
@@ -427,6 +429,8 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
   .qty-input{width:46px}
   .step{width:24px;height:24px;font-size:14px}
   .fname{max-width:96px}
+  .day-label{font-size:20px}
+  .day-week{font-size:11px;padding:5px 9px}
 }
 </style>
 </head>
