@@ -179,6 +179,22 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 }
 .manual-add input.manual-note{width:110px;text-align:left;font-size:13px}
 .manual-del{color:var(--danger) !important}
+/* 拍食物估算面板 */
+.dish-panel{
+  margin-bottom:12px;padding:12px 14px;border-radius:16px;
+  background:var(--card);box-shadow:inset 4px 4px 8px var(--dark),inset -4px -4px 8px var(--light);
+}
+.dish-name{font-size:15px;font-weight:800}
+.dish-nums{font-size:12.5px;color:var(--muted);margin:6px 0 10px;line-height:1.6}
+.dish-portion{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.dish-portion-title{font-size:12.5px;font-weight:700;color:var(--muted)}
+.dish-g{
+  border:none;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text);
+  background:var(--card);border-radius:11px;padding:7px 11px;
+  box-shadow:4px 4px 8px var(--dark),-4px -4px 8px var(--light);
+}
+.dish-g.active{color:#fff;background:linear-gradient(145deg,#4b8fc9,#5da9e8)}
+.dish-actions{display:flex;flex-wrap:wrap;gap:9px}
 
 /* ---------- overview ---------- */
 .overview{position:sticky;top:18px}
@@ -206,6 +222,7 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 
 /* ---------- 联网查营养 ---------- */
 .srch-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.srch-bar-2{margin-top:-4px;margin-bottom:12px}
 .srch-input{flex:1 1 240px;min-width:170px;width:auto;padding:11px 14px;font-size:14px}
 .srch-status{
   font-size:12.5px;line-height:1.65;margin-bottom:12px;padding:10px 14px;border-radius:14px;color:var(--muted);
@@ -444,7 +461,26 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
         <div class="srch-bar">
           <input class="search srch-input" id="aiQueryInput" placeholder="输入食物名称，如：红烧肉、无糖酸奶、麦当劳巨无霸">
           <button class="btn btn-primary" id="aiQueryBtn" type="button">AI 一键查询</button>
+        </div>
+        <div class="srch-bar srch-bar-2">
+          <button class="btn btn-sm" id="aiPhotoBtn" type="button">📷 拍成分表</button>
+          <button class="btn btn-sm" id="aiDishBtn" type="button">🍽 拍食物估算</button>
           <button class="btn btn-sm btn-ghost" id="aiSettingsBtn" type="button">⚙️ 设置</button>
+          <input type="file" id="aiPhotoFile" accept="image/*" capture="environment" hidden>
+        </div>
+        <div class="dish-panel hidden" id="dishPanel">
+          <div class="dish-name" id="dishName"></div>
+          <div class="dish-nums" id="dishNums"></div>
+          <div class="dish-portion">
+            <span class="dish-portion-title">份量</span>
+            <button class="dish-g" data-g="150" type="button">小份 150g</button>
+            <button class="dish-g" data-g="250" type="button">中份 250g</button>
+            <button class="dish-g" data-g="400" type="button">大份 400g</button>
+          </div>
+          <div class="dish-actions">
+            <button class="btn btn-sm btn-primary" id="dishAddBtn" type="button">✓ 按这个份量加到今天</button>
+            <button class="btn btn-sm" id="dishCloseBtn" type="button">关闭</button>
+          </div>
         </div>
         <div class="srch-status hidden" id="aiStatus"></div>
       </div>
@@ -586,6 +622,7 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
       </select></label>
       <label class="field full"><span>接口地址</span><input id="aiBaseUrl" placeholder="https://api.deepseek.com/chat/completions"></label>
       <label class="field"><span>模型名</span><input id="aiModel" placeholder="deepseek-chat"></label>
+      <label class="field"><span>视觉模型（拍照识别用）</span><input id="aiVModel" placeholder="deepseek-v4-flash-vision-exp"></label>
       <label class="field"><span>API Key</span><input id="aiKey" type="password" placeholder="sk-..."></label>
       <div class="field full"><div class="key-hint" id="aiKeyHint">建议用 DeepSeek 控制台的「复制」按钮，粘贴时别漏字符。</div></div>
       <div class="form-actions">
@@ -1380,6 +1417,200 @@ function buildFoodPrompt(name){
     'cat 只能填这三个之一：碳水类、蛋白类、其他（按主要营养来源判断：主食/水果/含糖饮料等算「碳水类」；肉蛋奶豆鱼等算「蛋白类」；蔬菜/油脂/坚果/零食等算「其他」）。\n' +
     '说明：数值用数字（可含小数）；按最常见的状态估算（如"红烧肉"按熟食），熟食请把「（熟）」写在 name 里。';
 }
+/* ---------- 拍照识别（成分表） ---------- */
+const VISION_MODELS = {
+  deepseek:    'deepseek-v4-flash-vision-exp',
+  zhipu:       'glm-4v-flash',
+  kimi:        'moonshot-v1-8k-vision-preview',
+  siliconflow: 'Qwen/Qwen2.5-VL-7B-Instruct',
+  dashscope:   'qwen-vl-plus'
+};
+function visionModel(){
+  const p = aiSettings.provider || 'deepseek';
+  return String(aiSettings.vmodel || VISION_MODELS[p] || VISION_MODELS.deepseek).trim();
+}
+function buildLabelPrompt(){
+  return '这是食品包装上的「营养成分表」照片。请读出每 100 克的营养成分，并给这个食品起个简短名字。\n' +
+    '只输出一行 JSON，不要解释、不要代码块标记，格式严格如下：\n' +
+    '{"name":"食品名","cat":"碳水类","per100":{"c":碳水化合物克数,"p":蛋白质克数,"f":脂肪克数}}\n' +
+    '要求：\n' +
+    '1) cat 只能是 碳水类 / 蛋白类 / 其他 之一；\n' +
+    '2) 如果表头写的是「每份」或「每100ml」，请按包装上标注的每份含量（如 30g/份）换算成每 100g，并在 name 里注明「（每100ml）」这类说明；\n' +
+    '3) 忽略「能量/千焦 kJ」那一行，只读 碳水化合物、蛋白质、脂肪 三项；\n' +
+    '4) 数值必须是数字（可含小数）；看不清时给一个合理的估值，不要留空。';
+}
+function compressImage(file, maxSide){
+  return new Promise(function(resolve, reject){
+    const reader = new FileReader();
+    reader.onerror = function(){ reject(new Error('读取图片失败')); };
+    reader.onload = function(){
+      const img = new Image();
+      img.onerror = function(){ reject(new Error('这张图片无法解析')); };
+      img.onload = function(){
+        const scale = Math.min(1, maxSide / Math.max(img.width || 1, img.height || 1));
+        const w = Math.max(1, Math.round((img.width || 1) * scale));
+        const h = Math.max(1, Math.round((img.height || 1) * scale));
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(cv.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function visionErrorHint(status, msg){
+  if (status === 400 && /model|not found|invalid/i.test(msg)){
+    return '可能是「视觉模型」名字不对。请在「⚙️ 设置 → 视觉模型」里填对（DeepSeek 用 deepseek-v4-flash-vision-exp；智谱用 glm-4v-flash）。';
+  }
+  if (status === 400) return '接口拒绝了这张图片（可能是模型不支持看图，或图片太大）。可在设置里换一个视觉模型试试。';
+  if (status === 401 || status === 403) return 'key 无效：去 platform.deepseek.com → API keys 重新复制一次再填。';
+  if (status === 402) return '余额不足：去 platform.deepseek.com 充值。';
+  if (status === 404) return '接口地址不对，请检查「⚙️ 设置」里的接口地址。';
+  return '';
+}
+async function recognizeLabel(file){  const cfg = aiConf();
+  if (!cfg.key || !cfg.url){
+    setAiStatus('还没填 AI key，用不了拍照识别。点「⚙️ 设置」填好 key 即可。', 'warn');
+    openAiSettings();
+    return;
+  }
+  setAiStatus('📷 正在识别成分表…');
+  try {
+    const dataUrl = await compressImage(file, 1600);
+    const res = await fetch(cfg.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({
+        model: visionModel(),
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: buildLabelPrompt() },
+            { type: 'image_url', image_url: { url: dataUrl } }
+          ]
+        }],
+        temperature: 0.1,
+        max_tokens: 500
+      })
+    });
+    const txt = await res.text();
+    if (!res.ok){
+      let msg = txt.slice(0, 150);
+      try { const j = JSON.parse(txt); msg = (j.error && (j.error.message || j.error.code)) || j.message || msg; } catch(e){}
+      setAiStatus('❌ 识别失败（HTTP ' + res.status + '）：' + msg + '\n' + visionErrorHint(res.status, msg), 'err');
+      return;
+    }
+    let content = txt;
+    try { content = JSON.parse(txt).choices[0].message.content; } catch(e){}
+    const d = parseFoodAnswer(content, $('#aiQueryInput').value.trim());
+    if (!d){
+      setAiStatus('❌ 没能从识别结果里读出营养数据。拍照时尽量让成分表占满画面、光线充足、别反光，再试一次。\n（原始返回：' + String(content).slice(0, 120).replace(/\s+/g, ' ') + '）', 'err');
+      return;
+    }
+    fillAddForm(d);                 // 名称/分类/碳蛋脂一次填好
+    $('#aiQueryInput').value = d.name || '';
+    setAiStatus('', 'ok');          // 成功不打扰
+    toast('📷 已识别：' + (d.name || '食物') + '（请核对数字后加入）');
+  } catch(e){
+    setAiStatus('❌ 图片处理或请求失败：' + ((e && (e.message || e.name)) || '未知错误'), 'err');
+  }
+}
+/* ---------- 拍照识别：一盘菜（重量由你选份量） ---------- */
+let dishCurrent = null, dishPortion = 250, shotMode = 'label';
+function buildDishPrompt(){
+  return '这是一张食物/菜品的照片。请判断这是什么（尽量具体，例如「番茄炒蛋」「红烧肉」「牛肉面」），并估算它每 100 克的营养。\n' +
+    '只输出一行 JSON，不要解释、不要代码块标记，格式严格如下：\n' +
+    '{"name":"菜名","cat":"碳水类","per100":{"c":碳水克数,"p":蛋白质克数,"f":脂肪克数}}\n' +
+    '要求：\n' +
+    '1) cat 只能是 碳水类 / 蛋白类 / 其他 之一；\n' +
+    '2) 按家常做法估算，多油/红烧/勾芡的菜请把油算进去；\n' +
+    '3) 数值必须是数字（可含小数）；\n' +
+    '4) 不要猜重量，重量由我自己填。';
+}
+async function recognizeDish(file){
+  const cfg = aiConf();
+  if (!cfg.key || !cfg.url){
+    setAiStatus('还没填 AI key，用不了拍照识别。点「⚙️ 设置」填好 key 即可。', 'warn');
+    openAiSettings();
+    return;
+  }
+  setAiStatus('🍽 正在识别这张照片…');
+  try {
+    const dataUrl = await compressImage(file, 1600);
+    const res = await fetch(cfg.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({
+        model: visionModel(),
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: buildDishPrompt() },
+            { type: 'image_url', image_url: { url: dataUrl } }
+          ]
+        }],
+        temperature: 0.2,
+        max_tokens: 400
+      })
+    });
+    const txt = await res.text();
+    if (!res.ok){
+      let msg = txt.slice(0, 150);
+      try { const j = JSON.parse(txt); msg = (j.error && (j.error.message || j.error.code)) || j.message || msg; } catch(e){}
+      setAiStatus('❌ 识别失败（HTTP ' + res.status + '）：' + msg + '\n' + visionErrorHint(res.status, msg), 'err');
+      return;
+    }
+    let content = txt;
+    try { content = JSON.parse(txt).choices[0].message.content; } catch(e){}
+    const d = parseFoodAnswer(content, '');
+    if (!d){
+      setAiStatus('❌ 没认出这道菜。把食物拍清楚一点（整盘入镜、光线足），或者换成「📷 拍成分表」/直接手填。\n（原始返回：' + String(content).slice(0, 120).replace(/\s+/g, ' ') + '）', 'err');
+      return;
+    }
+    showDishPanel(d);
+  } catch(e){
+    setAiStatus('❌ 图片处理或请求失败：' + ((e && (e.message || e.name)) || '未知错误'), 'err');
+  }
+}
+function showDishPanel(d){
+  dishCurrent = d;
+  fillAddForm(d);                       // 同时把表单填好，方便手动微调
+  const kcal = d.c * 4 + d.p * 4 + d.f * 9;
+  $('#dishName').textContent = '🍽 ' + (d.name || '这道菜') + (d.cat ? '（' + d.cat + '）' : '');
+  $('#dishNums').textContent = '每100g：碳水 ' + fmtNum(d.c) + 'g · 蛋白 ' + fmtNum(d.p) + 'g · 脂肪 ' + fmtNum(d.f) + 'g · 热量 ' + fmtK(kcal) + ' kcal（估算值，请核对）';
+  selectDishPortion(250);
+  $('#dishPanel').classList.remove('hidden');
+  setAiStatus('', 'ok');
+}
+function selectDishPortion(g){
+  dishPortion = g;
+  $('#nfServing').value = String(g);
+  $$('#dishPanel .dish-g').forEach(b => b.classList.toggle('active', Number(b.dataset.g) === g));
+  updateKcalPreview();
+}
+function addDishToToday(){
+  if (!dishCurrent) return;
+  const name = (dishCurrent.name || '拍照记录').trim();
+  const serving = dishPortion || 250;
+  const per100 = { c: dishCurrent.c, p: dishCurrent.p, f: dishCurrent.f, kcal: dishCurrent.c * 4 + dishCurrent.p * 4 + dishCurrent.f * 9 };
+  const id = 'c' + Date.now();
+  customFoods.push({ id: id, name: name, cat: dishCurrent.cat || '其他', serving: serving, per100: per100, perServing: calcPerServing(per100, serving) });
+  const rec = getRec();
+  rec.entries[id] = 1;
+  saveAll();
+  // 加完自动跳到「今日记录」并显示全部，方便你立刻看到
+  state.catFilter = '全部';
+  $$('.cat-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === state.catFilter));
+  resetAddForm();
+  renderMealTable();
+  renderOverview();
+  $('#dishPanel').classList.add('hidden');
+  dishCurrent = null;
+  switchTab('today');
+  toast('已加入今天：' + name + '（' + serving + 'g）');
+}
 function pickNumByKeys(box, keys){
   if (!box || typeof box !== 'object') return null;
   for (const k of keys){
@@ -1520,6 +1751,7 @@ function openAiSettings(){
   $('#aiProvider').value = AI_PROVIDERS[aiSettings.provider] ? aiSettings.provider : 'deepseek';
   $('#aiBaseUrl').value = aiSettings.url || p.url;
   $('#aiModel').value = aiSettings.model || p.model;
+  $('#aiVModel').value = visionModel();
   $('#aiKey').value = aiSettings.key || '';
   updateKeyHint();
   $('#aiSettingsModal').classList.add('open');
@@ -1530,6 +1762,7 @@ function saveAiSettings(){
     provider: $('#aiProvider').value,
     url: cleanTok($('#aiBaseUrl').value),
     model: $('#aiModel').value.trim(),
+    vmodel: $('#aiVModel').value.trim(),
     key: cleanTok($('#aiKey').value)
   };
   try { localStorage.setItem(K_AI, JSON.stringify(aiSettings)); } catch(e){ toast('⚠️ 浏览器存储不可用'); }
@@ -1544,6 +1777,7 @@ $('#aiProvider').addEventListener('change', () => {
   const p = AI_PROVIDERS[$('#aiProvider').value] || AI_PROVIDERS.deepseek;
   $('#aiBaseUrl').value = p.url;
   $('#aiModel').value = p.model;
+  $('#aiVModel').value = VISION_MODELS[$('#aiProvider').value] || VISION_MODELS.deepseek;
 });
 $('#aiSettingsForm').addEventListener('submit', e => {
   e.preventDefault();
@@ -1558,6 +1792,18 @@ $('#aiClearKeyBtn').addEventListener('click', () => {
   saveAiSettings();
   toast('已清除 key');
 });
+$('#aiPhotoBtn').addEventListener('click', () => { shotMode = 'label'; $('#aiPhotoFile').click(); });
+$('#aiDishBtn').addEventListener('click', () => { shotMode = 'dish'; $('#aiPhotoFile').click(); });
+$('#aiPhotoFile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  if (shotMode === 'dish') recognizeDish(f);
+  else recognizeLabel(f);
+});
+$('#dishAddBtn').addEventListener('click', addDishToToday);
+$('#dishCloseBtn').addEventListener('click', () => { $('#dishPanel').classList.add('hidden'); dishCurrent = null; });
+$$('#dishPanel .dish-g').forEach(b => b.addEventListener('click', () => selectDishPortion(Number(b.dataset.g))));
 $('#aiKey').addEventListener('input', updateKeyHint);
 
 /* 食物弹窗 */
