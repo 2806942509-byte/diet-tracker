@@ -1,5 +1,5 @@
 /* 饮食打卡 · 离线缓存 Service Worker */
-const CACHE_NAME = 'diet-tracker-v12';
+const CACHE_NAME = 'diet-tracker-v13';
 const CORE_ASSETS = [
   './',
   './index.html',
