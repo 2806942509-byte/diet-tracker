@@ -461,7 +461,7 @@ th.col-serving,td.col-serving,th.col-qty,td.col-qty{text-align:center}
 
 <nav class="main-nav">
   <button class="active" data-tab="today" type="button">📝 今日记录</button>
-  <button data-tab="library" type="button">🍎 食物库</button>
+  <button data-tab="library" type="button">➕ 添加食物</button>
   <button data-tab="trend" type="button">📅 每日记录</button>
 </nav>
 
@@ -740,7 +740,8 @@ const K_SETTINGS = 'diet_settings_v1';
 const K_OVERRIDES = 'diet_overrides_v1';
 const K_WEIGHTS = 'diet_weights_v1';
 const K_HIDDEN = 'diet_hidden_v1';
-const APP_VERSION = 'v20 · 10月5日';   // 每次更新都改这里，用来确认手机上是不是最新版
+const K_DAYTARGETS = 'diet_daytargets_v1';   // 每天目标值的历史快照
+const APP_VERSION = 'v21 · 10月5日';   // 每次更新都改这里，用来确认手机上是不是最新版
 const K_AI = 'diet_ai_v1';
 
 /* ================= 存储与状态 ================= */
@@ -758,6 +759,7 @@ function saveAll(){
     localStorage.setItem(K_OVERRIDES, JSON.stringify(overrides));
     localStorage.setItem(K_WEIGHTS, JSON.stringify(weights));
     localStorage.setItem(K_HIDDEN, JSON.stringify(hiddenFoods));
+    localStorage.setItem(K_DAYTARGETS, JSON.stringify(dayTargets));
   }catch(e){ toast('⚠️ 浏览器存储不可用'); }
 }
 
@@ -767,6 +769,10 @@ let settings = Object.assign({ dayType: 'train', weight: 60, fat: 60 }, loadJSON
 let overrides = loadJSON(K_OVERRIDES, {});
 let weights = loadJSON(K_WEIGHTS, {});
 let hiddenFoods = loadJSON(K_HIDDEN, []);   // 被移除了的内置食物
+/* 每天的目标值快照：{ 'YYYY-MM-DD': {t:'train',c,p,f,kcal,w,fat} }
+   目的：历史日期的目标一旦定下就封存，之后改训练日/休息日、改体重都不会改动历史 */
+let dayTargets = loadJSON(K_DAYTARGETS, {});
+let dayTargetsDirty = false;
 
 const state = { tab: 'today', search: '', catFilter: '碳水类', calYear: null, calMonth: null, viewFoodId: null, editFoodId: null };
 let currentDayKey = dietDateKey();
@@ -823,14 +829,53 @@ function normalizeSettings(){
   settings.weight = (isFinite(w) && w > 0) ? w : 60;
   settings.fat = (isFinite(f) && f >= 0) ? f : 60;
 }
-function getTargets(){
-  const w = Number(settings.weight) || 60;
+function computeTargets(type, weight){
+  const w = Number(weight) || 60;
   const ms = getMultipliers();
-  const m = ms[settings.dayType] || ms.train;
+  const m = ms[type] || ms.train;
   const c = Math.round(w * m.c);
   const p = Math.round(w * m.p);
   const f = Number(settings.fat) || 60;
-  return { label: m.label, c: c, p: p, f: f, kcal: c * 4 + p * 4 + f * 9 };
+  return { t: type, label: m.label, c: c, p: p, f: f, kcal: c * 4 + p * 4 + f * 9, w: w, fat: f };
+}
+/* 某天当时是训练日还是休息日：今天/未来跟设置走，过去的日期用那天封存下来的 */
+function dayTypeForDate(key){
+  const k = key || currentDayKey;
+  if (k >= currentDayKey) return settings.dayType || 'train';
+  const snap = dayTargets[k];
+  if (snap && snap.t) return snap.t;
+  const prev = Object.keys(dayTargets).filter(x => x <= k && dayTargets[x] && dayTargets[x].t).sort();
+  if (prev.length) return dayTargets[prev[prev.length - 1]].t;
+  return settings.dayType || 'train';
+}
+/* key 传了就取那天的目标：
+   - 过去的日期 → 用封存值，改训练日/休息日、改体重都不会影响历史
+   - 今天 → 每次按最新设置重算，并刷新今天的快照 */
+function getTargets(key){
+  const k = key || currentDayKey;
+  const snap = dayTargets[k];
+  if (k < currentDayKey && snap && snap.c != null) return snap;
+  const t = computeTargets(dayTypeForDate(k), settings.weight);
+  if (k <= currentDayKey){
+    dayTargets[k] = t;
+    dayTargetsDirty = true;
+  }
+  return t;
+}
+function flushDayTargets(){
+  if (dayTargetsDirty){ dayTargetsDirty = false; saveAll(); }
+}
+/* 升级到这一版时，把已有历史（有记录的日期）按当时的设置封存一次，之后就固定了 */
+function sealHistory(){
+  let changed = false;
+  Object.keys(records).forEach(k => {
+    if (k > currentDayKey) return;
+    const snap = dayTargets[k];
+    if (snap && snap.c != null) return;
+    dayTargets[k] = computeTargets(dayTypeForDate(k), settings.weight);
+    changed = true;
+  });
+  if (changed) saveAll();
 }
 
 /* ================= 食物 ================= */
@@ -1000,6 +1045,7 @@ function renderOverview(){
       <div class="bar"><div class="bar-fill ${r.cls}" style="width:${Math.min(100, intake / target * 100)}%"></div></div>
     </div>`;
   }).join('');
+  flushDayTargets();
 }
 function renderFloatSummary(){
   const el = $('#floatSummary');
@@ -1246,8 +1292,6 @@ function resetCalMonth(){
 }
 function renderCalendar(){
   const { y, m } = calMonth();
-  const t = getTargets();
-  const targetKcal = t.kcal;
   const todayKey = dietDateKey();
   $('#calTitle').textContent = y + ' 年 ' + (m + 1) + ' 月';
 
@@ -1260,6 +1304,7 @@ function renderCalendar(){
     const key = y + '-' + pad2(m + 1) + '-' + pad2(d);
     const rec = records[key];
     const kcal = caloriesForDate(key);
+    const targetKcal = getTargets(key).kcal;      // 用「那一天」的目标，不受后来改动影响
     const has = kcal > 0 || !!(rec && rec.entries && Object.keys(rec.entries).length);
     const isToday = key === todayKey;
     const isFuture = key > todayKey;
@@ -1272,7 +1317,7 @@ function renderCalendar(){
     }
     const cls = 'cal-cell' + tone + (isToday ? ' today' : '') + (!has && isFuture ? ' future' : '');
     const tip = has
-      ? (m + 1) + '月' + d + '日：' + fmtK(kcal) + ' kcal（目标 ' + fmtK(targetKcal) + ' · ' + judge + '）'
+      ? (m + 1) + '月' + d + '日（' + (dayTypeForDate(key) === 'rest' ? '休息日' : '训练日') + '）：' + fmtK(kcal) + ' kcal（目标 ' + fmtK(targetKcal) + ' · ' + judge + '）'
       : (m + 1) + '月' + d + '日：' + (isFuture ? '还没到' : '没有记录');
     html += `<div class="${cls}" data-day="${key}" title="${tip}">
       <div class="cal-date">${d}</div>
@@ -1286,6 +1331,7 @@ function renderCalendar(){
   const tail = (7 - (lead + days) % 7) % 7;
   for (let i = 0; i < tail; i++) html += '<div class="cal-cell blank"></div>';
   $('#calGrid').innerHTML = html;
+  flushDayTargets();
 }
 
 /* ================= 视图切换 ================= */
@@ -1300,6 +1346,7 @@ function renderAll(){
   renderOverview();
   renderMealTable();
   if (state.tab === 'trend') renderCalendar();
+  flushDayTargets();
 }
 
 /* ================= 事件 ================= */
@@ -1309,10 +1356,12 @@ $('#dayTypeSeg').addEventListener('click', e => {
   const btn = e.target.closest('button');
   if (!btn) return;
   settings.dayType = btn.dataset.type;
+  delete dayTargets[currentDayKey];      // 只重算「今天」，历史日期保持封存
   saveAll();
   renderHeader();
   renderOverview();
   if (state.tab === 'trend') renderCalendar();
+  flushDayTargets();
 });
 
 function bindCatFilter(container){
@@ -2033,7 +2082,7 @@ $('#saveTargetsBtn').addEventListener('click', () => {
 
 /* 备份 / 恢复 */
 $('#exportBtn').addEventListener('click', () => {
-  const data = { foods: customFoods, overrides, records, weights, settings, hidden: hiddenFoods, exportedAt: new Date().toISOString() };
+  const data = { foods: customFoods, overrides, records, weights, settings, hidden: hiddenFoods, dayTargets: dayTargets, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2058,10 +2107,12 @@ $('#importFile').addEventListener('change', e => {
       records = data.records && typeof data.records === 'object' ? data.records : {};
       weights = data.weights && typeof data.weights === 'object' ? data.weights : {};
       hiddenFoods = Array.isArray(data.hidden) ? data.hidden : [];
+      dayTargets = (data.dayTargets && typeof data.dayTargets === 'object') ? data.dayTargets : {};
       settings = Object.assign({ dayType: 'train', weight: 60, fat: 60 }, data.settings || {});
       normalizeSettings();
       normalizeCustomFoods();
       normalizeRecords();
+      sealHistory();
       saveAll();
       renderAll();
       syncHiddenBtn();
@@ -2071,12 +2122,15 @@ $('#importFile').addEventListener('change', e => {
   reader.readAsText(file);
   e.target.value = '';
 });
-$('#resetDataBtn').addEventListener('click', () => {  if (!confirm('确定清除所有记录、自定义食物、体重与设置吗？建议先导出备份。')) return;
+$('#resetDataBtn').addEventListener('click', () => {
+  if (!confirm('确定清除所有记录、自定义食物、体重与设置吗？建议先导出备份。')) return;
   customFoods = [];
   overrides = {};
   records = {};
   weights = {};
   hiddenFoods = [];
+  dayTargets = {};
+  dayTargetsDirty = false;
   settings = { dayType: 'train', weight: 60, fat: 60 };
   saveAll();
   renderAll();
@@ -2100,6 +2154,7 @@ setInterval(checkDayRollover, 30000);
 normalizeSettings();
 normalizeCustomFoods();
 normalizeRecords();
+sealHistory();          // 把已有历史按当前设置封存一次（之后改训练日/休息日不再影响历史）
 syncHiddenBtn();
 if ($('#verText')) $('#verText').textContent = APP_VERSION;
 renderAll();
