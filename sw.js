@@ -1,7 +1,7 @@
 /* 饮食打卡 · 离线缓存 Service Worker
    注意：GitHub Pages 对所有文件都带 Cache-Control: max-age=600（10 分钟强缓存），
    所以这里所有网络请求都要显式绕过 HTTP 缓存，否则更新会延迟十分钟才生效。 */
-const CACHE_NAME = 'diet-tracker-v20';
+const CACHE_NAME = 'diet-tracker-v21';
 const CORE_ASSETS = [
   './',
   './index.html',
